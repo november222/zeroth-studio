@@ -17,7 +17,7 @@ ScrollTrigger.normalizeScroll(true);
 const SCROLL_LEN = 7200; // px cuộn cho toàn chuỗi
 
 /* ---------- refs ---------- */
-const fallingCircle = document.querySelector('.falling-circle');
+const logoDisc      = document.querySelector('.logo__disc');
 const logo          = document.querySelector('.logo');
 const cameraBox     = document.querySelector('.camera-box');
 const cameraScene   = document.querySelector('.camera-scene');
@@ -46,16 +46,13 @@ const EYE_Z = -prismHD;                            // -30px
 const coreRect = () => lensCore.getBoundingClientRect();
 const logoRect = () => logo.getBoundingClientRect();
 
-/* đĩa rơi: đặt gốc trùng logo, animate bằng TRANSFORM (x/y/scale) — không
-   animate left/top/width/height để tránh reflow từng frame gây giật. */
-function placeFalling() {
-  const r = logoRect();
-  gsap.set(fallingCircle, {
-    left: r.left, top: r.top, width: r.width, height: r.height,
-    x: 0, y: 0, scale: 1, autoAlpha: 1,
-  });
+/* đĩa trắng: nằm sẵn trùng .logo (position:absolute; inset:0), CHỮ Z ĐEN đè lên
+   trên (z-index). Chỉ animate TRANSFORM (x/y/scale) để "trôi" xuống lens —
+   không đụng left/top/width/height nên không reflow từng frame. */
+function placeDisc() {
+  gsap.set(logoDisc, { x: 0, y: 0, scale: 1, autoAlpha: 1 });
 }
-ScrollTrigger.addEventListener('refreshInit', placeFalling);
+ScrollTrigger.addEventListener('refreshInit', placeDisc);
 
 /* ---------- vạch chia quanh ống kính (thước đo bản vẽ) ---------- */
 const teeth = lensSvg.querySelector('.lens__teeth');
@@ -151,7 +148,7 @@ gsap.set('.anno__lead', { scaleX: 0, transformOrigin: 'left center' });
 gsap.set('.anno--r .anno__lead', { transformOrigin: 'right center' });
 gsap.set('.titleblock', { autoAlpha: 0, y: 12 });
 
-placeFalling();
+placeDisc();
 
 /* ============================================================
    TIMELINE DUY NHẤT (đơn vị 0..~100, scrub ánh xạ theo cuộn)
@@ -169,10 +166,11 @@ const tl = gsap.timeline({
   },
 });
 
-/* --- 1. Logo "rơi" khỏi menu xuống vị trí lens ---
+/* --- 1. Đĩa trắng "trôi" khỏi menu xuống vị trí lens ---
    Đích = rect THẬT của .lens__core (ở progress 0 khối chưa biến dạng nên
-   getBoundingClientRect cho đúng vị trí/kích thước sẽ crossfade). */
-tl.fromTo(fallingCircle,
+   getBoundingClientRect cho đúng vị trí/kích thước sẽ crossfade).
+   Chữ Z ở lại chỗ logo (không đi theo đĩa). */
+tl.fromTo(logoDisc,
   { x: 0, y: 0, scale: 1 },
   {
     x: () => (coreRect().left + coreRect().width / 2) - (logoRect().left + logoRect().width / 2),
@@ -183,12 +181,12 @@ tl.fromTo(fallingCircle,
     duration: 8,
   }, 0);
 
-// chữ "Z" đen -> trắng ngả xanh ngay khi đĩa rời menu
+// chữ "Z" đen -> trắng ngay khi đĩa bắt đầu trôi (lộ ra trên nền tối + vòng viền)
 tl.to('.logo__z', { color: '#e8f2ff', duration: 1 }, 0.4);
 
 /* --- 2. Crossfade tức thời: đĩa HTML -> circle trong SVG lens --- */
 tl.set('.lens__core', { autoAlpha: 1 }, 7.5);
-tl.to(fallingCircle, { autoAlpha: 0, duration: 1.0 }, 7.6);
+tl.to(logoDisc, { autoAlpha: 0, duration: 1.0 }, 7.6);
 
 /* --- 3. Xây "lens" sơ đồ: tâm ngắm + 3 vòng đồng tâm vẽ dần + vạch chia --- */
 tl.set('.lens__cross', { autoAlpha: 1 }, 8.4);

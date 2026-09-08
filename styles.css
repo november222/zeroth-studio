@@ -103,15 +103,25 @@ body {
   border-radius: 50%;
   border: 1px solid #e8f2ff;
 }
+/* đĩa trắng đặc: che vòng viền lúc đầu, rồi "trôi" xuống lens.
+   Nằm DƯỚI .logo__z (chữ Z) nhưng TRÊN .logo__ring. */
+.logo__disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #e8f2ff;
+  will-change: transform, opacity;
+}
 .logo__z {
   position: absolute;
   inset: 0;
+  z-index: 2;               /* luôn nằm trên đĩa: đầu là Z đen trên đĩa trắng */
   display: grid;
   place-items: center;
   font-weight: 700;
   font-size: 17px;
   line-height: 1;
-  color: #0a0c10;            /* đen trên nền vòng đặc, JS đổi sang trắng ngả xanh */
+  color: #0a0c10;            /* đen trên đĩa trắng; JS đổi sang trắng khi đĩa trôi đi */
   will-change: color;
 }
 .nav__brand {
@@ -130,17 +140,6 @@ body {
 }
 .nav__links a:hover { color: #e8f2ff; }
 
-/* ---------- vòng tròn đặc: 1 phần tử DOM, rơi từ menu -> lens ---------- */
-.falling-circle {
-  position: fixed;
-  z-index: 70;                /* phải nằm TRÊN .logo__z lúc đầu */
-  left: 0; top: 0;
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: #e8f2ff;
-  opacity: 0;                 /* JS bật lên sau khi đã đặt đúng vị trí */
-  will-change: transform, opacity;
-}
 
 /* ---------- Layer 3 : nội dung cuộn ---------- */
 main { position: relative; z-index: 3; }
