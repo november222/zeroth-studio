@@ -72,6 +72,17 @@ body {
   will-change: opacity;
 }
 
+/* ---------- màn trắng chuyển cảnh (lao vào điểm trắng) ---------- */
+.whiteout {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: #f4f7ff;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+
 /* ---------- Layer 2 : nav cố định ---------- */
 .nav {
   position: fixed;

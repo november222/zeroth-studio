@@ -14,7 +14,7 @@ window.scrollTo(0, 0);
 ScrollTrigger.config({ ignoreMobileResize: true });
 ScrollTrigger.normalizeScroll(true);
 
-const SCROLL_LEN = 7600; // px cuộn cho toàn chuỗi
+const SCROLL_LEN = 7900; // px cuộn cho toàn chuỗi
 
 /* ---------- refs ---------- */
 const logoDisc      = document.querySelector('.logo__disc');
@@ -150,8 +150,9 @@ KNOBS.forEach((k) => {
   // .knob__cyl: KHÔNG gsap.set (GSAP ghi matrix() 2D -> làm phẳng thành trụ)
 });
 
-// tâm xoay/scale của cả máy ảnh = tâm ống ngắm
-gsap.set(cameraBox, { transformOrigin: `50% ${EYE_Y}px ${EYE_Z}px` });
+// tâm xoay/scale của cả máy ảnh = TÂM KHỐI (= vị trí điểm trắng lõi lens)
+gsap.set(cameraBox, { transformOrigin: '50% 50%' });
+gsap.set('.whiteout', { opacity: 0 });
 
 // mọi mảnh khối (trừ SVG lens đang là "lens phẳng") ẩn tới lúc "nở"
 gsap.set(camBody.querySelectorAll('.pane'), { autoAlpha: 0 });
@@ -273,47 +274,43 @@ tl.to(cameraBox, { rotationX: -24, rotationY: 33, duration: 18, ease: 'power1.in
 /* --- 4b. Khung tên bản vẽ (2D, góc dưới) --- */
 tl.to('.titleblock', { autoAlpha: 1, y: 0, duration: 5, ease: 'power2.out' }, BLOOM);
 
-/* --- 5. Xoay lộ mặt sau + hạ ống ngắm về giữa.
-   Ống kính GIỮ NGUYÊN, xoay theo khối như vật thể 3D thật. */
-tl.to(cameraBox, { rotationY: '+=196', duration: 18, ease: 'power1.inOut' }, 53);
-tl.to(cameraBox, { rotationX: -5,      duration: 18, ease: 'power1.inOut' }, 53);
-tl.to(cameraBox, { y: 160 - EYE_Y,     duration: 13, ease: 'power1.inOut' }, 58);
+/* --- 5. Xoay gần 1 vòng quanh khối (chú thích chạy theo góc) rồi XOAY VỀ
+   CHÍNH DIỆN để ĐIỂM TRẮNG (lõi lens ở tâm khối) nằm giữa màn hình.
+   Khối giữ nguyên ở tâm — không hạ như bản zoom-ống-ngắm cũ. */
+tl.to(cameraBox, { rotationY: 202, duration: 15, ease: 'power1.inOut' }, 53);   // ra sau
+tl.to(cameraBox, { rotationX: -6,  duration: 15, ease: 'power1.inOut' }, 53);
+tl.to(cameraBox, { rotationY: 360, duration: 15, ease: 'power1.inOut' }, 70);   // về trước
+tl.to(cameraBox, { rotationX: 0,   duration: 15, ease: 'power1.inOut' }, 70);
 
-/* --- 5b. Chú thích hiện LẦN LƯỢT theo bộ phận đang ở CHÍNH DIỆN khi khối xoay:
-   ống kính (lúc "nở", rotY~0-40) -> thân máy (xoay sang nghiêng ~rotY 30-160)
-   -> tinh chỉnh (đang xoay tiếp ~rotY 150-226) -> ống ngắm (mặt sau, rotY~200-226).
-   Mỗi cái bay từ chiều sâu (z) ra + vạch chỉ "vẽ" tới, rồi lùi đi trước cái kế. */
+/* --- 5b. Chú thích hiện LẦN LƯỢT theo bộ phận đang ở CHÍNH DIỆN khi khối xoay. */
 function annoBeat(sel, inAt, outAt) {
   tl.to(sel,                 { autoAlpha: 1, z: 0,  duration: 4,   ease: 'power2.out' }, inAt);
   tl.to(sel + ' .anno__lead',{ scaleX: 1,           duration: 3,   ease: 'power2.out' }, inAt + 0.6);
   tl.to(sel + ' .anno__lead',{ scaleX: 0,           duration: 1.8 }, outAt);
   tl.to(sel,                 { autoAlpha: 0, z: 44,  duration: 3.2, ease: 'power2.in'  }, outAt);
 }
-annoBeat('.anno--1', 34, 55);   // 01 · ỐNG KÍNH ở chính diện (lúc "nở")
-annoBeat('.anno--3', 54, 64);   // 03 · THÂN MÁY — khối xoay lộ toàn thân
-annoBeat('.anno--4', 63, 71);   // 04 · HIỆU CHỈNH — đang xoay tiếp
-annoBeat('.anno--2', 70, 82);   // 02 · ỐNG NGẮM ở chính diện (mặt sau)
+annoBeat('.anno--1', 34, 54);   // 01 · ỐNG KÍNH — lúc "nở"
+annoBeat('.anno--3', 53, 63);   // 03 · THÂN MÁY — xoay sang nghiêng
+annoBeat('.anno--4', 62, 69);   // 04 · HIỆU CHỈNH — đang xoay
+annoBeat('.anno--2', 66, 74);   // 02 · ỐNG NGẮM — mặt sau
 
-/* --- 6. Zoom vào ống ngắm.
-   KHÔNG ẩn ống kính hay bất kỳ mảng khối nào riêng lẻ nữa — mọi thứ (kể cả
-   trụ ống kính) đi theo .camera-box và chỉ TAN cùng lúc qua .camera-scene ->
-   không có chi tiết nào "tự dưng biến mất". Chỉ:
-   - làm mờ RẤT chậm 24 vạch chia SVG (nguồn nhiễu nét lúc scale lớn) khi khối
-     đã quay gần hết ra sau -> mắt không nhận ra;
-   - dọn khung tên (2D) trước khi sang nền màu. */
-tl.to('.lens__teeth line', { autoAlpha: 0, duration: 10, ease: 'power1.inOut' }, 64);
-tl.to('.titleblock', { autoAlpha: 0, duration: 4 }, 68);
-tl.to(cameraBox, { scale: 10, duration: 18, ease: 'power2.in' }, 71);
+/* --- 6. LAO VÀO ĐIỂM TRẮNG. Dọn wireframe quanh lõi (vạch chia + vòng + tâm
+   ngắm) để khoảnh khắc cuối chỉ còn điểm trắng phóng to; khung tên đi trước. */
+tl.to('.titleblock', { autoAlpha: 0, duration: 4 }, 72);
+tl.to(['.lens__teeth line', '.lens__rings', '.lens__cross'],
+      { autoAlpha: 0, duration: 5, ease: 'power1.in' }, 78);
+tl.to(cameraBox, { scale: 10, duration: 15, ease: 'power2.in' }, 82);
 
-/* --- 7. CROSS-DISSOLVE SỚM: cả cảnh (thân + lăng kính + ống kính) tan CÙNG
-   NHAU khi hình còn sạch nét (scale ~4) -> vừa không "vỡ" vừa không mất chi
-   tiết lẻ. Lưới mờ nối tiếp. */
-tl.to(cameraScene, { autoAlpha: 0, duration: 6, ease: 'power1.inOut' }, 82);
-tl.to('.blueprint-bg', { opacity: 0, duration: 9, ease: 'power1.inOut' }, 85);
+/* --- 7. MÀN HÌNH TRẮNG DẦN (điểm trắng phóng to lấp đầy) rồi tan ra lộ nền màu.
+   Màn trắng vào MUỘN hơn để điểm trắng kịp choán màn hình trước. */
+tl.to('.whiteout', { opacity: 1, duration: 5, ease: 'power1.in' }, 91);
+tl.to(cameraScene,     { autoAlpha: 0, duration: 3 }, 95);   // (đã bị màn trắng che)
+tl.to('.blueprint-bg', { opacity: 0,   duration: 3 }, 95);
+tl.to('.whiteout', { opacity: 0, duration: 10, ease: 'power1.inOut' }, 97);
 
-/* --- 8. Text kết trên nền màu --- */
-tl.to('.finale', { autoAlpha: 1, y: 0, duration: 8, ease: 'power2.out' }, 92);
-tl.to({}, { duration: 3 }, 104); // đệm cuối
+/* --- 8. Tiêu đề kết hiện ra khi màn trắng lùi, để lộ nền màu --- */
+tl.to('.finale', { autoAlpha: 1, y: 0, duration: 8, ease: 'power2.out' }, 100);
+tl.to({}, { duration: 3 }, 110); // đệm cuối
 
 /* ============================================================
    Điều hướng nhanh — cuộn animate (ScrollToPlugin), không nhảy
