@@ -118,28 +118,21 @@ gsap.set('.lring', { z: 0, autoAlpha: 0 });
 gsap.set('.lens-cap', { z: 0 });
 gsap.set('.lribs i', { autoAlpha: 0 });
 
-// núm xoay = TRỤ NỔI: dựng nan trụ (đứng theo Y), 2 đĩa nằm phẳng (rotationX 90),
-// cả cụm đặt chìm dưới mặt nóc, sẽ "trồi" lên lúc "nở".
+// núm xoay = billboard SVG "núm nhìn 3/4", dựng trên nóc thân, chìm sẵn -> trồi
+// lên lúc "nở". Đích y đặt sao cho đáy ellipse ~ trùng mặt nóc.
 const KNOBS = [
-  { sel: '.knob--shutter', d: 48, h: 34, ribs: 10, x: 100, z: -6 },
-  { sel: '.knob--rewind',  d: 37, h: 28, ribs: 9,  x: -102, z: 4 },
-  { sel: '.knob--btn',     d: 16, h: 13, ribs: 6,  x: 62,  z: 26 },
+  { sel: '.knob--shutter', w: 58, x: 104,  z: -18 },
+  { sel: '.knob--rewind',  w: 46, x: -106, z: -14 },
+  { sel: '.knob--btn',     w: 24, x: 60,   z: 22 },
 ];
 KNOBS.forEach((k) => {
-  const g = document.querySelector(k.sel);
-  g.style.setProperty('--kd', k.d + 'px');
-  g.style.setProperty('--kh', k.h + 'px');
-  const wall = g.querySelector('.knob__wall');
-  for (let i = 0; i < k.ribs; i++) {
-    const el = document.createElement('i');
-    el.style.transform = `rotateY(${((i / k.ribs) * 360).toFixed(1)}deg) translateZ(${k.d / 2}px)`;
-    wall.appendChild(el);
-  }
-  gsap.set(k.sel, { xPercent: -50, yPercent: -50, x: k.x, z: k.z, y: -bodyHH + k.h + 6, autoAlpha: 0 });
-  gsap.set(k.sel + ' .knob__base', { xPercent: -50, yPercent: -50, rotationX: 90, y: 0 });
-  gsap.set(k.sel + ' .knob__top',  { xPercent: -50, yPercent: -50, rotationX: 90, y: -k.h });
-  gsap.set(k.sel + ' .knob__cap',  { xPercent: -50, yPercent: -50, rotationX: 90, y: -k.h });
-  gsap.set(k.sel + ' .knob__wall', { xPercent: -50, yPercent: -50 });
+  document.querySelector(k.sel).style.setProperty('--kw', k.w + 'px');
+  k.yUp = -bodyHH - k.w * 0.10;         // đích: dial ngồi trên mặt nóc
+  gsap.set(k.sel, {
+    xPercent: -50, yPercent: -50,
+    x: k.x, z: k.z, y: k.yUp + 22,      // chìm 22px vào thân
+    autoAlpha: 0,
+  });
 });
 
 // tâm xoay/scale của cả máy ảnh = tâm ống ngắm
@@ -256,8 +249,10 @@ tl.to(prismPane('lf'), { x: -CAM.prism.w / 2, ...bl }, BLOOM + 3);
 tl.to(prismPane('rt'), { x:  CAM.prism.w / 2, ...bl }, BLOOM + 3);
 
 // NÚM XOAY + nút chụp bung ra; nghiêng nhẹ lộ chiều sâu
-tl.to('.knob', { y: -bodyHH, autoAlpha: 1, duration: 5, stagger: 0.5, ease: 'back.out(1.5)' }, BLOOM + 8);
-tl.to(cameraBox, { rotationX: -23, rotationY: 32, duration: 18, ease: 'power1.inOut' }, BLOOM);
+KNOBS.forEach((k, i) => {
+  tl.to(k.sel, { y: k.yUp, autoAlpha: 1, duration: 5, ease: 'back.out(1.5)' }, BLOOM + 8 + i * 0.5);
+});
+tl.to(cameraBox, { rotationX: -24, rotationY: 33, duration: 18, ease: 'power1.inOut' }, BLOOM);
 
 /* --- 4b. Khung tên bản vẽ (2D, góc dưới) --- */
 tl.to('.titleblock', { autoAlpha: 1, y: 0, duration: 5, ease: 'power2.out' }, BLOOM);

@@ -327,35 +327,20 @@ main { position: relative; z-index: 3; }
   border-radius: 50%;
 }
 
-/* ---- núm xoay = TRỤ NỔI trên nóc (trụ wireframe đứng theo trục Y) ---- */
+/* ---- núm xoay / nút chụp = "núm nhìn 3/4" (SVG billboard đứng trên nóc) ---- */
 .knob {
   position: absolute;
   left: 50%; top: 50%;
-  transform-style: preserve-3d;
+  width: var(--kw);
+  aspect-ratio: 100 / 64;
   will-change: transform, opacity;
 }
-.knob__base,
-.knob__top,
-.knob__cap {
-  position: absolute;
-  left: 50%; top: 50%;
-  border-radius: 50%;
-  border: 1px solid #e8f2ff;
-}
-.knob__base,
-.knob__top { width: var(--kd); height: var(--kd); }
-.knob__base { border-color: rgba(232, 242, 255, 0.5); }
-.knob__top  { border-style: dashed; }          /* nét đứt = vân khía núm */
-.knob__cap  { width: calc(var(--kd) * 0.42); height: calc(var(--kd) * 0.42); }
-.knob__wall { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; }
-.knob__wall i {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 1.5px;
-  height: var(--kh);
-  margin-top: calc(var(--kh) * -1);
-  background: #e8f2ff;
-}
+.knob__svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.knob__disc  { opacity: 0.95; }
+.knob__front { opacity: 0.65; }
+.knob__side  { opacity: 0.8; }
+.knob__pip   { opacity: 0.9; }
+.knob__hub   { opacity: 0.55; }
 
 /* ---------- chú thích = BẢNG THÔNG TIN 3 CHIỀU TRONG SUỐT ---------- */
 .annos {

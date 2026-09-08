@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=16" />
+  <link rel="stylesheet" href="styles.css?v=21" />
 </head>
 <body>
 
@@ -105,23 +105,34 @@
                 <div class="pane pane--rt"></div>
               </div>
 
-              <!-- NÚM XOAY + nút chụp = trụ NỔI trên nóc -->
+              <!-- NÚM XOAY + nút chụp = "núm nhìn 3/4" vẽ bằng SVG (ellipse đỉnh
+                   + thân trụ + vạch mốc), dựng đứng trên nóc, trồi lên lúc "nở" -->
               <div class="knob knob--shutter">
-                <span class="knob__base"></span>
-                <span class="knob__wall"></span>
-                <span class="knob__top"></span>
-                <span class="knob__cap"></span>
+                <svg class="knob__svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e8f2ff" stroke-width="1.6">
+                  <ellipse class="knob__disc" cx="50" cy="22" rx="47" ry="17" stroke-dasharray="3.5 3" />
+                  <path class="knob__side" d="M3 22 V40" />
+                  <path class="knob__side" d="M97 22 V40" />
+                  <path class="knob__front" d="M3 40 A47 17 0 0 0 97 40" />
+                  <path class="knob__pip" d="M50 5 V22" stroke-width="1.2" />
+                  <circle class="knob__hub" cx="50" cy="22" r="6" />
+                </svg>
               </div>
               <div class="knob knob--rewind">
-                <span class="knob__base"></span>
-                <span class="knob__wall"></span>
-                <span class="knob__top"></span>
-                <span class="knob__cap"></span>
+                <svg class="knob__svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e8f2ff" stroke-width="1.8">
+                  <ellipse class="knob__disc" cx="50" cy="22" rx="47" ry="17" stroke-dasharray="3.5 3" />
+                  <path class="knob__side" d="M3 22 V40" />
+                  <path class="knob__side" d="M97 22 V40" />
+                  <path class="knob__front" d="M3 40 A47 17 0 0 0 97 40" />
+                  <circle class="knob__hub" cx="50" cy="22" r="7" />
+                </svg>
               </div>
               <div class="knob knob--btn">
-                <span class="knob__base"></span>
-                <span class="knob__wall"></span>
-                <span class="knob__top"></span>
+                <svg class="knob__svg" viewBox="0 0 100 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e8f2ff" stroke-width="2.4">
+                  <ellipse class="knob__disc" cx="50" cy="26" rx="42" ry="16" />
+                  <path class="knob__side" d="M8 26 V40" />
+                  <path class="knob__side" d="M92 26 V40" />
+                  <path class="knob__front" d="M8 40 A42 16 0 0 0 92 40" />
+                </svg>
               </div>
             </div>
 
@@ -195,6 +206,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
-  <script src="main.js?v=16"></script>
+  <script src="main.js?v=21"></script>
 </body>
 </html>
