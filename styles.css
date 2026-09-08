@@ -364,12 +364,13 @@ main { position: relative; z-index: 3; }
 }
 .knob__lid  { border-style: dashed; }                 /* vân khía mặt đỉnh */
 .knob__foot { border-color: rgba(232, 242, 255, 0.45); }
-.knob__pip {
+.knob__pip {                                           /* vạch mốc trên mặt đỉnh */
   position: absolute;
   left: 50%; top: 50%;
   width: 2px;
-  height: calc(var(--kd) * 0.5);
-  margin: calc(var(--kd) * -0.5) 0 0 -1px;
+  height: calc(var(--kd) * 0.46);
+  margin-left: -1px;
+  transform-origin: 50% 0;
   background: #e8f2ff;
 }
 

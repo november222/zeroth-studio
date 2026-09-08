@@ -123,9 +123,9 @@ gsap.set('.lribs i', { autoAlpha: 0 });
 // trồi lên lúc "nở". KHÔNG animate opacity/autoAlpha trên .knob (sẽ làm phẳng);
 // bật/tắt bằng visibility.
 const KNOBS = [
-  { sel: '.knob--shutter', d: 44, h: 21, seg: 14, x: 100,  z: -4 },
-  { sel: '.knob--rewind',  d: 34, h: 18, seg: 13, x: -102, z: -2 },
-  { sel: '.knob--btn',     d: 16, h: 11, seg: 10, x: 58,   z: 26 },
+  { sel: '.knob--shutter', d: 46, h: 14, seg: 16, x: 100,  z: -4 },
+  { sel: '.knob--rewind',  d: 36, h: 12, seg: 14, x: -102, z: -2 },
+  { sel: '.knob--btn',     d: 16, h: 8,  seg: 10, x: 58,   z: 26 },
 ];
 KNOBS.forEach((k) => {
   const g = document.querySelector(k.sel);
@@ -140,11 +140,13 @@ KNOBS.forEach((k) => {
     s.style.transform = `rotateY(${((i / k.seg) * 360).toFixed(1)}deg) translateZ(${R.toFixed(1)}px)`;
     cyl.appendChild(s);
   }
-  k.yUp = -bodyHH - k.h / 2 + 7;        // đích: đáy trụ cắm nhẹ vào mặt nóc
-  gsap.set(k.sel, { xPercent: -50, yPercent: -50, x: k.x, z: k.z, y: k.yUp + 20, visibility: 'hidden' });
-  gsap.set(k.sel + ' .knob__lid',  { xPercent: -50, yPercent: -50, rotationX: 90, y: -k.h / 2 });
-  gsap.set(k.sel + ' .knob__foot', { xPercent: -50, yPercent: -50, rotationX: 90, y: k.h / 2 });
-  gsap.set(k.sel + ' .knob__pip',  { xPercent: -50, yPercent: -50, rotationX: 90, y: -k.h / 2 });
+  k.yUp = -bodyHH - k.h / 2 + 8;        // đích: đáy trụ cắm nhẹ vào mặt nóc
+  gsap.set(k.sel, { xPercent: -50, yPercent: -50, x: k.x, z: k.z, y: k.yUp + 18, visibility: 'hidden' });
+  // Căn tâm lid/foot/pip = CSS margin (giống các mảnh thành trụ). KHÔNG dùng
+  // xPercent/yPercent nữa -> tránh CĂN TÂM 2 LẦN làm lệch vân với khối trụ.
+  gsap.set(k.sel + ' .knob__lid',  { rotationX: 90, y: -k.h / 2 });
+  gsap.set(k.sel + ' .knob__foot', { rotationX: 90, y: k.h / 2 });
+  gsap.set(k.sel + ' .knob__pip',  { rotationX: 90, y: -k.h / 2, transformOrigin: '50% 0%' });
   // .knob__cyl: KHÔNG gsap.set (GSAP ghi matrix() 2D -> làm phẳng thành trụ)
 });
 
