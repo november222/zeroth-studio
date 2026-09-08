@@ -118,11 +118,29 @@ gsap.set('.lring', { z: 0, autoAlpha: 0 });
 gsap.set('.lens-cap', { z: 0 });
 gsap.set('.lribs i', { autoAlpha: 0 });
 
-// núm xoay: đặt sẵn vị trí trên nóc, nằm ngang, thu nhỏ + ẩn
-gsap.set('.dial', { xPercent: -50, yPercent: -50, rotationX: 90, scale: 0, autoAlpha: 0 });
-gsap.set('.dial--shutter', { x: 92,  y: -bodyHH, z: -8 });
-gsap.set('.dial--rewind',  { x: -98, y: -bodyHH, z: 6 });
-gsap.set('.dial--button',  { x: 58,  y: -bodyHH, z: 22 });
+// núm xoay = TRỤ NỔI: dựng nan trụ (đứng theo Y), 2 đĩa nằm phẳng (rotationX 90),
+// cả cụm đặt chìm dưới mặt nóc, sẽ "trồi" lên lúc "nở".
+const KNOBS = [
+  { sel: '.knob--shutter', d: 48, h: 34, ribs: 10, x: 100, z: -6 },
+  { sel: '.knob--rewind',  d: 37, h: 28, ribs: 9,  x: -102, z: 4 },
+  { sel: '.knob--btn',     d: 16, h: 13, ribs: 6,  x: 62,  z: 26 },
+];
+KNOBS.forEach((k) => {
+  const g = document.querySelector(k.sel);
+  g.style.setProperty('--kd', k.d + 'px');
+  g.style.setProperty('--kh', k.h + 'px');
+  const wall = g.querySelector('.knob__wall');
+  for (let i = 0; i < k.ribs; i++) {
+    const el = document.createElement('i');
+    el.style.transform = `rotateY(${((i / k.ribs) * 360).toFixed(1)}deg) translateZ(${k.d / 2}px)`;
+    wall.appendChild(el);
+  }
+  gsap.set(k.sel, { xPercent: -50, yPercent: -50, x: k.x, z: k.z, y: -bodyHH + k.h + 6, autoAlpha: 0 });
+  gsap.set(k.sel + ' .knob__base', { xPercent: -50, yPercent: -50, rotationX: 90, y: 0 });
+  gsap.set(k.sel + ' .knob__top',  { xPercent: -50, yPercent: -50, rotationX: 90, y: -k.h });
+  gsap.set(k.sel + ' .knob__cap',  { xPercent: -50, yPercent: -50, rotationX: 90, y: -k.h });
+  gsap.set(k.sel + ' .knob__wall', { xPercent: -50, yPercent: -50 });
+});
 
 // tâm xoay/scale của cả máy ảnh = tâm ống ngắm
 gsap.set(cameraBox, { transformOrigin: `50% ${EYE_Y}px ${EYE_Z}px` });
@@ -238,8 +256,8 @@ tl.to(prismPane('lf'), { x: -CAM.prism.w / 2, ...bl }, BLOOM + 3);
 tl.to(prismPane('rt'), { x:  CAM.prism.w / 2, ...bl }, BLOOM + 3);
 
 // NÚM XOAY + nút chụp bung ra; nghiêng nhẹ lộ chiều sâu
-tl.to('.dial', { scale: 1, autoAlpha: 1, duration: 5, stagger: 0.4, ease: 'back.out(1.7)' }, BLOOM + 8);
-tl.to(cameraBox, { rotationX: -16, rotationY: 30, duration: 18, ease: 'power1.inOut' }, BLOOM);
+tl.to('.knob', { y: -bodyHH, autoAlpha: 1, duration: 5, stagger: 0.5, ease: 'back.out(1.5)' }, BLOOM + 8);
+tl.to(cameraBox, { rotationX: -23, rotationY: 32, duration: 18, ease: 'power1.inOut' }, BLOOM);
 
 /* --- 4b. Khung tên bản vẽ (2D, góc dưới) --- */
 tl.to('.titleblock', { autoAlpha: 1, y: 0, duration: 5, ease: 'power2.out' }, BLOOM);

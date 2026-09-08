@@ -179,7 +179,7 @@ main { position: relative; z-index: 3; }
 @media (min-width: 768px) { .camera-scene { scale: 1.28; } }
 
 /* thúc GPU tách lớp cho các cụm chuyển động -> giảm rung/nhòe khi scrub */
-.wirebox, .cam-lens, .pane, .lring, .dial { will-change: transform; }
+.wirebox, .cam-lens, .pane, .lring, .knob { will-change: transform; }
 
 /* ---- sub-assembly: hộp wireframe 6 mặt ---- */
 .wirebox {
@@ -255,7 +255,15 @@ main { position: relative; z-index: 3; }
 .lens__ring--3 { opacity: 0.5; }
 .lens__cross-line { opacity: 0.5; }
 
-/* ---- ống ngắm trên mặt sau lăng kính (icon đối xứng -> không lỗi soi gương) ---- */
+/* ---- ống ngắm + eyecup trên mặt sau lăng kính (đối xứng -> không soi gương) ---- */
+.eyecup {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 48px; height: 36px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(232, 242, 255, 0.5);
+  border-radius: 9px;
+}
 .eyepiece {
   position: absolute;
   left: 50%; top: 50%;
@@ -271,22 +279,83 @@ main { position: relative; z-index: 3; }
   border-radius: 50%;
 }
 
-/* ---- núm xoay / nút chụp (đĩa nằm ngang trên nóc) ---- */
-.dial {
+/* ---- hot-shoe trên nóc lăng kính ---- */
+.hotshoe {
+  position: absolute;
+  left: 50%; top: 32%;
+  width: 30px; height: 15px;
+  transform: translateX(-50%);
+  border: 1px solid #e8f2ff;
+}
+.hotshoe i {
+  position: absolute;
+  inset: 3px 5px;
+  border: 1px solid rgba(125, 138, 160, 0.6);
+}
+
+/* ---- màn hình sau lưng máy ---- */
+.screen {
+  position: absolute;
+  left: 50%; top: 15%;
+  width: 58%; height: 60%;
+  transform: translateX(-50%);
+  border: 1px solid #e8f2ff;
+  background: rgba(146, 194, 255, 0.06);
+}
+.screen::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(125, 138, 160, 0.5);
+}
+.screen__scan {
+  position: absolute;
+  inset: 6px;
+  background: repeating-linear-gradient(
+    to bottom, rgba(146, 194, 255, 0.14) 0 1px, transparent 1px 8px);
+}
+.rear-btns {
+  position: absolute;
+  left: 5%; top: 24%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rear-btns i {
+  width: 9px; height: 9px;
+  border: 1px solid rgba(232, 242, 255, 0.7);
+  border-radius: 50%;
+}
+
+/* ---- núm xoay = TRỤ NỔI trên nóc (trụ wireframe đứng theo trục Y) ---- */
+.knob {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+.knob__base,
+.knob__top,
+.knob__cap {
   position: absolute;
   left: 50%; top: 50%;
   border-radius: 50%;
   border: 1px solid #e8f2ff;
 }
-.dial i {
+.knob__base,
+.knob__top { width: var(--kd); height: var(--kd); }
+.knob__base { border-color: rgba(232, 242, 255, 0.5); }
+.knob__top  { border-style: dashed; }          /* nét đứt = vân khía núm */
+.knob__cap  { width: calc(var(--kd) * 0.42); height: calc(var(--kd) * 0.42); }
+.knob__wall { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; }
+.knob__wall i {
   position: absolute;
-  inset: 4px;
-  border-radius: 50%;
-  border: 1px solid #7d8aa0;
+  left: 50%; top: 50%;
+  width: 1.5px;
+  height: var(--kh);
+  margin-top: calc(var(--kh) * -1);
+  background: #e8f2ff;
 }
-.dial--shutter { width: 46px; height: 46px; }
-.dial--rewind  { width: 34px; height: 34px; }
-.dial--button  { width: 15px; height: 15px; }
 
 /* ---------- chú thích = BẢNG THÔNG TIN 3 CHIỀU TRONG SUỐT ---------- */
 .annos {
