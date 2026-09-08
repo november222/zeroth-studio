@@ -121,16 +121,16 @@ gsap.set('.lribs i', { autoAlpha: 0 });
 // núm xoay = billboard SVG "núm nhìn 3/4", dựng trên nóc thân, chìm sẵn -> trồi
 // lên lúc "nở". Đích y đặt sao cho đáy ellipse ~ trùng mặt nóc.
 const KNOBS = [
-  { sel: '.knob--shutter', w: 58, x: 104,  z: -18 },
-  { sel: '.knob--rewind',  w: 46, x: -106, z: -14 },
-  { sel: '.knob--btn',     w: 24, x: 60,   z: 22 },
+  { sel: '.knob--shutter', w: 64, x: 106,  z: -10 },
+  { sel: '.knob--rewind',  w: 50, x: -108, z: -8 },
+  { sel: '.knob--btn',     w: 26, x: 58,   z: 24 },
 ];
 KNOBS.forEach((k) => {
   document.querySelector(k.sel).style.setProperty('--kw', k.w + 'px');
-  k.yUp = -bodyHH - k.w * 0.10;         // đích: dial ngồi trên mặt nóc
+  k.yUp = -bodyHH - k.w * 0.17;         // đích: vành đáy trụ ~ trùng mặt nóc
   gsap.set(k.sel, {
     xPercent: -50, yPercent: -50,
-    x: k.x, z: k.z, y: k.yUp + 22,      // chìm 22px vào thân
+    x: k.x, z: k.z, y: k.yUp + 24,      // chìm vào thân, sẽ trồi lên
     autoAlpha: 0,
   });
 });
