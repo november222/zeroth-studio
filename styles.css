@@ -1,0 +1,466 @@
+/* ============================================================
+   Zeroth Studio — one-page, mobile-first, scroll-driven
+   ============================================================ */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: #0a0c10;
+  color: #e8f2ff;
+  font-family: "Chakra Petch", "Helvetica Neue", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+/* kiểu chữ "bản vẽ": số liệu / nhãn kỹ thuật dùng mono */
+.mono, .titleblock__meta, .anno__tag {
+  font-family: "Share Tech Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+/* ---------- Layer 0 : trang nền màu (bị che từ đầu) ---------- */
+.color-page {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background: #0b1030;
+}
+.color-page .blob,
+.color-page .shard {
+  position: absolute;
+  display: block;
+}
+.blob { border-radius: 50%; filter: blur(1px); }
+.blob--cobalt  { width: 78vw; height: 78vw; left: -24vw; top: -16vh;  background: #1b4dff; }
+.blob--magenta { width: 60vw; height: 60vw; right: -22vw; top: 30vh;  background: #ff2d9b; }
+.blob--lime    { width: 46vw; height: 46vw; left: -8vw;  bottom: 2vh;  background: #c6f836; }
+.blob--violet  { width: 54vw; height: 54vw; right: -16vw; bottom: -18vh; background: #7a3cff; }
+.shard--a {
+  left: -10vw; top: 40vh;
+  width: 90vw; height: 46vh;
+  background: #06b6d4;
+  transform: rotate(-16deg);
+  clip-path: polygon(0 40%, 100% 0, 100% 60%, 0 100%);
+  opacity: .85;
+}
+.shard--b {
+  right: -24vw; top: 6vh;
+  width: 96vw; height: 58vh;
+  background: #ffd23e;
+  transform: rotate(22deg);
+  clip-path: polygon(0 46%, 100% 0, 100% 54%, 0 100%);
+  opacity: .92;
+}
+
+/* ---------- Layer 1 : lưới blueprint ---------- */
+.blueprint-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  background: #0a0c10;
+  background-image:
+    linear-gradient(rgba(140,190,255,0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(140,190,255,0.22) 1px, transparent 1px),
+    linear-gradient(rgba(140,190,255,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(140,190,255,0.08) 1px, transparent 1px);
+  background-size: 88px 88px, 88px 88px, 22px 22px, 22px 22px;
+  will-change: opacity;
+}
+
+/* ---------- Layer 2 : nav cố định ---------- */
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  font-size: 13px;
+  letter-spacing: .02em;
+}
+.nav__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.logo {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  flex: none;
+}
+.logo__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid #e8f2ff;
+}
+.logo__z {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1;
+  color: #0a0c10;            /* đen trên nền vòng đặc, JS đổi sang trắng ngả xanh */
+  will-change: color;
+}
+.nav__brand {
+  font-weight: 500;
+  color: #7d8aa0;
+  letter-spacing: 0.03em;
+  text-transform: lowercase;
+}
+.nav__links {
+  display: flex;
+  gap: 16px;
+}
+.nav__links a {
+  color: #7d8aa0;
+  text-decoration: none;
+}
+.nav__links a:hover { color: #e8f2ff; }
+
+/* ---------- vòng tròn đặc: 1 phần tử DOM, rơi từ menu -> lens ---------- */
+.falling-circle {
+  position: fixed;
+  z-index: 70;                /* phải nằm TRÊN .logo__z lúc đầu */
+  left: 0; top: 0;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: #e8f2ff;
+  opacity: 0;                 /* JS bật lên sau khi đã đặt đúng vị trí */
+  will-change: transform, opacity;
+}
+
+/* ---------- Layer 3 : nội dung cuộn ---------- */
+main { position: relative; z-index: 3; }
+
+/* KHÔNG đặt height ở đây — ScrollTrigger tự thêm pin-spacer tạo quãng cuộn.
+   Ép height 100dvh sẽ cắt spacer và làm section sau đè lên. */
+.scroll-track { position: relative; }
+
+.pin-stage {
+  position: relative;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+}
+.stage-inner {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- cảnh 3D ---------- */
+.camera-scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+.camera-box {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+@media (min-width: 768px) { .camera-scene { scale: 1.28; } }
+
+/* thúc GPU tách lớp cho các cụm chuyển động -> giảm rung/nhòe khi scrub */
+.wirebox, .cam-lens, .pane, .lring, .dial { will-change: transform; }
+
+/* ---- sub-assembly: hộp wireframe 6 mặt ---- */
+.wirebox {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+}
+.cam-body  { --w: 310px; --h: 188px; --d: 96px; }
+.cam-prism { --w: 100px; --h: 48px;  --d: 64px; }
+
+/* 6 mặt: neo top/left 50% (JS căn tâm bằng xPercent/yPercent), góc xoay CỐ ĐỊNH,
+   dịch chuyển = 0. Phong cách bản vẽ: KHÔNG fill đặc, chỉ viền mảnh, nền gần
+   trong suốt; backface-visibility: visible -> nhìn xuyên vào trong khối. */
+.pane {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid #e8f2ff;
+  background: rgba(140, 190, 255, 0.03);
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+.wirebox > .pane--ft,
+.wirebox > .pane--bk { width: var(--w); height: var(--h); }
+.wirebox > .pane--tp,
+.wirebox > .pane--bt { width: var(--w); height: var(--d); }
+.wirebox > .pane--lf,
+.wirebox > .pane--rt { width: var(--d); height: var(--h); }
+.cam-body > .pane { border-radius: 12px; }
+
+/* ---- ống kính: trụ wireframe ---- */
+.cam-lens {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 200px; height: 200px;
+  transform-style: preserve-3d;
+}
+.lring {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 176px; height: 176px;
+  border-radius: 50%;
+  border: 1px solid #e8f2ff;
+}
+.lring--m { opacity: 0.7; }
+.lring--r { opacity: 0.55; }
+.lribs { position: absolute; inset: 0; transform-style: preserve-3d; }
+.lribs i {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 64px; height: 1px;
+  margin-left: -32px;          /* tâm thanh trùng trục ống kính */
+  background: #e8f2ff;
+  opacity: 0.6;
+}
+.lens-cap { position: absolute; inset: 0; }
+
+.lens {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+.lens__core  { opacity: 0; will-change: transform, opacity; }
+.lens__rings { opacity: 0; }
+.lens__teeth { opacity: 0; }
+.lens__cross { opacity: 0; }
+.lens__ring { transform: rotate(-90deg); transform-origin: 150px 150px; }
+.lens__ring--1 { opacity: 0.9; }
+.lens__ring--2 { opacity: 0.68; }
+.lens__ring--3 { opacity: 0.5; }
+.lens__cross-line { opacity: 0.5; }
+
+/* ---- ống ngắm trên mặt sau lăng kính (icon đối xứng -> không lỗi soi gương) ---- */
+.eyepiece {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 34px; height: 26px;
+  transform: translate(-50%, -50%);
+  border: 1px solid #e8f2ff;
+  border-radius: 5px;
+}
+.eyepiece i {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid #7d8aa0;
+  border-radius: 50%;
+}
+
+/* ---- núm xoay / nút chụp (đĩa nằm ngang trên nóc) ---- */
+.dial {
+  position: absolute;
+  left: 50%; top: 50%;
+  border-radius: 50%;
+  border: 1px solid #e8f2ff;
+}
+.dial i {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px solid #7d8aa0;
+}
+.dial--shutter { width: 46px; height: 46px; }
+.dial--rewind  { width: 34px; height: 34px; }
+.dial--button  { width: 15px; height: 15px; }
+
+/* ---------- chú thích kỹ thuật 3D (annos) ---------- */
+.annos {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.anno {
+  position: absolute;
+  width: min(46vw, 200px);
+  will-change: transform, opacity;
+}
+.anno--l { text-align: left; }
+.anno--r { text-align: right; }
+.anno__tag {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: #7d8aa0;
+}
+.anno__body {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: #e8f2ff;
+}
+.anno__lead {
+  position: absolute;
+  top: 7px;
+  height: 1px;
+  width: 46px;
+  background: linear-gradient(90deg, rgba(232,242,255,0.85), rgba(232,242,255,0));
+  transform-origin: left center;
+}
+.anno--l .anno__lead { left: 100%; }
+.anno--r .anno__lead { right: 100%; background: linear-gradient(270deg, rgba(232,242,255,0.85), rgba(232,242,255,0)); transform-origin: right center; }
+
+.anno--1 { left: 3%;  top: 27%; }
+.anno--2 { right: 3%; top: 20%; }
+.anno--3 { left: 3%;  bottom: 22%; }
+.anno--4 { right: 3%; bottom: 27%; }
+.anno--1 .anno__lead { transform: rotate(24deg); }
+.anno--2 .anno__lead { transform: rotate(-24deg); }
+.anno--3 .anno__lead { transform: rotate(-22deg); }
+.anno--4 .anno__lead { transform: rotate(20deg); }
+
+@media (min-width: 768px) {
+  .anno { width: 210px; }
+  .anno__body { font-size: 13px; }
+  .anno__lead { width: 68px; }
+  .anno--1 { left: 8%; }  .anno--2 { right: 8%; }
+  .anno--3 { left: 8%; }  .anno--4 { right: 8%; }
+}
+
+/* ---------- khung tên bản vẽ ---------- */
+.titleblock {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: min(58vw, 240px);
+  padding: 10px 12px;
+  border: 1px solid rgba(125,138,160,0.5);
+  background: rgba(10,12,16,0.35);
+  text-align: left;
+  will-change: opacity;
+}
+.titleblock__name {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #e8f2ff;
+}
+.titleblock__desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: #7d8aa0;
+}
+.titleblock__rule {
+  display: block;
+  height: 1px;
+  margin: 8px 0;
+  background: rgba(125,138,160,0.4);
+}
+.titleblock__meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: #7d8aa0;
+}
+@media (min-width: 768px) {
+  .titleblock { right: 32px; bottom: 32px; width: 250px; }
+  .titleblock__name { font-size: 14px; }
+}
+
+/* ---------- caption cạnh lens ---------- */
+.lens-caption {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 190px);
+  transform: translateX(-50%);
+  margin: 0;
+  width: min(84vw, 340px);
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #e8f2ff;
+  opacity: 0;
+}
+.lens-caption span { display: block; }
+
+/* ---------- text kết ---------- */
+.finale {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(88vw, 460px);
+  text-align: center;
+  opacity: 0;
+}
+.finale__title {
+  margin: 0 0 14px;
+  font-size: clamp(28px, 9vw, 44px);
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  color: #fff;
+  text-shadow: 0 2px 24px rgba(6, 8, 20, 0.55), 0 1px 3px rgba(6, 8, 20, 0.7);
+}
+.finale__sub {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #fff;
+  text-shadow: 0 1px 12px rgba(6, 8, 20, 0.75), 0 1px 3px rgba(6, 8, 20, 0.8);
+}
+
+/* ---------- nội dung sau pin ---------- */
+.content {
+  position: relative;
+  z-index: 3;
+  padding: 72px 20px 88px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+.content h2 {
+  margin: 0 0 22px;
+  font-size: clamp(24px, 7vw, 34px);
+  letter-spacing: -0.02em;
+}
+.content p { line-height: 1.6; color: rgba(255,255,255,0.9); }
+.content a { color: #d8ff3e; }
+.content__foot { margin-top: 40px; opacity: .7; font-size: 13px; }
+.cards { display: grid; gap: 14px; }
+.card {
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(8,10,20,0.55);
+  border: 1px solid rgba(150,196,255,0.18);
+  backdrop-filter: blur(4px);
+}
+.card h3 { margin: 0 0 6px; font-size: 16px; }
+.card p { margin: 0; font-size: 14px; }
+
+/* ---------- màn hình lớn hơn ---------- */
+@media (min-width: 768px) {
+  .nav { padding: 18px 32px; font-size: 14px; }
+  .lens-caption { top: calc(50% + 250px); font-size: 17px; }
+}
