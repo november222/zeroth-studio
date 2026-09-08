@@ -178,8 +178,10 @@ main { position: relative; z-index: 3; }
 }
 @media (min-width: 768px) { .camera-scene { scale: 1.28; } }
 
-/* thúc GPU tách lớp cho các cụm chuyển động -> giảm rung/nhòe khi scrub */
-.wirebox, .cam-lens, .pane, .lring, .knob { will-change: transform; }
+/* thúc GPU tách lớp cho các cụm chuyển động -> giảm rung/nhòe khi scrub.
+   KHÔNG thêm .knob: will-change tách lớp -> làm phẳng preserve-3d -> trụ 3D sập
+   (mặt đỉnh rotateX(90) bị ép về đường ~2px). Đó là lỗi "núm bị 2D". */
+.wirebox, .cam-lens, .pane, .lring { will-change: transform; }
 
 /* ---- sub-assembly: hộp wireframe 6 mặt ---- */
 .wirebox {
@@ -327,22 +329,49 @@ main { position: relative; z-index: 3; }
   border-radius: 50%;
 }
 
-/* ---- núm xoay / nút chụp = trụ khía "nhìn 3/4" (SVG billboard trên nóc) ---- */
+/* ---- núm xoay / nút chụp = TRỤ CSS 3D THẬT ----
+   .knob & .knob__cyl phải giữ preserve-3d, TUYỆT ĐỐI không will-change / opacity
+   / filter -> nếu không, lớp bị làm phẳng và mặt đỉnh sập thành đường. */
 .knob {
   position: absolute;
   left: 50%; top: 50%;
-  width: var(--kw);
-  aspect-ratio: 100 / 82;
-  will-change: transform, opacity;
+  transform-style: preserve-3d;
 }
-.knob__svg   { display: block; width: 100%; height: 100%; overflow: visible; }
-.knob__disc  { opacity: 0.95; }
-.knob__front { opacity: 0.9; }
-.knob__side  { opacity: 0.85; }
-.knob__knurl { opacity: 0.55; }
-.knob__pip   { opacity: 0.95; }
-.knob__hub   { opacity: 0.5; }
-.knob__hidden { opacity: 0.28; }
+.knob__cyl {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform-style: preserve-3d;
+}
+/* mỗi mảnh thành trụ: 1 tấm phẳng mảnh, viền = 1 gạch khía dọc + nền rất nhạt */
+.knob__cyl i {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: var(--kseg);
+  height: var(--kh);
+  margin: calc(var(--kh) / -2) 0 0 calc(var(--kseg) / -2);
+  border-left: 1px solid rgba(232, 242, 255, 0.7);
+  background: rgba(146, 194, 255, 0.04);
+}
+.knob__lid,
+.knob__foot {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: var(--kd);
+  height: var(--kd);
+  margin: calc(var(--kd) / -2) 0 0 calc(var(--kd) / -2);
+  border: 1px solid #e8f2ff;
+  border-radius: 50%;
+}
+.knob__lid  { border-style: dashed; }                 /* vân khía mặt đỉnh */
+.knob__foot { border-color: rgba(232, 242, 255, 0.45); }
+.knob__pip {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 2px;
+  height: calc(var(--kd) * 0.5);
+  margin: calc(var(--kd) * -0.5) 0 0 -1px;
+  background: #e8f2ff;
+}
 
 /* ---------- chú thích = BẢNG THÔNG TIN 3 CHIỀU TRONG SUỐT ---------- */
 .annos {

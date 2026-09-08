@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=22" />
+  <link rel="stylesheet" href="styles.css?v=24" />
 </head>
 <body>
 
@@ -105,45 +105,23 @@
                 <div class="pane pane--rt"></div>
               </div>
 
-              <!-- NÚM XOAY + nút chụp = trụ khía "nhìn 3/4" vẽ bằng SVG:
-                   mặt đỉnh (ellipse khía) + thân trụ cao có vân khía + vành đáy
-                   + cung sau khuất. Dựng trên nóc thân, trồi lên lúc "nở". -->
+              <!-- NÚM XOAY + nút chụp = TRỤ CSS 3D THẬT (thành trụ = N mảnh phẳng
+                   xếp vòng + vành đỉnh/đáy). Dựng trên nóc thân, trồi lên lúc "nở",
+                   xoay theo khối như mọi bộ phận khác. -->
               <div class="knob knob--shutter">
-                <svg class="knob__svg" viewBox="0 0 100 82" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e8f2ff" stroke-width="1.7">
-                  <path class="knob__hidden" d="M5 24 A45 14 0 0 0 95 24" stroke-dasharray="2 3" />
-                  <path class="knob__side" d="M5 24 V58" />
-                  <path class="knob__side" d="M95 24 V58" />
-                  <g class="knob__knurl">
-                    <path d="M17 35 V56" /><path d="M28 30 V57" /><path d="M39 27 V58" />
-                    <path d="M50 26 V58" /><path d="M61 27 V58" /><path d="M72 30 V57" /><path d="M83 35 V56" />
-                  </g>
-                  <path class="knob__front" d="M5 58 A45 14 0 0 0 95 58" />
-                  <ellipse class="knob__disc" cx="50" cy="24" rx="45" ry="14" stroke-dasharray="3 2.5" />
-                  <circle class="knob__hub" cx="50" cy="24" r="6" />
-                  <path class="knob__pip" d="M50 6 V24" stroke-width="1.3" />
-                </svg>
+                <div class="knob__cyl"></div>
+                <div class="knob__foot"></div>
+                <div class="knob__lid"></div>
+                <div class="knob__pip"></div>
               </div>
               <div class="knob knob--rewind">
-                <svg class="knob__svg" viewBox="0 0 100 82" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e8f2ff" stroke-width="1.9">
-                  <path class="knob__hidden" d="M5 24 A45 14 0 0 0 95 24" stroke-dasharray="2 3" />
-                  <path class="knob__side" d="M5 24 V58" />
-                  <path class="knob__side" d="M95 24 V58" />
-                  <g class="knob__knurl">
-                    <path d="M17 35 V56" /><path d="M28 30 V57" /><path d="M39 27 V58" />
-                    <path d="M50 26 V58" /><path d="M61 27 V58" /><path d="M72 30 V57" /><path d="M83 35 V56" />
-                  </g>
-                  <path class="knob__front" d="M5 58 A45 14 0 0 0 95 58" />
-                  <ellipse class="knob__disc" cx="50" cy="24" rx="45" ry="14" stroke-dasharray="3 2.5" />
-                  <circle class="knob__hub" cx="50" cy="24" r="8" />
-                </svg>
+                <div class="knob__cyl"></div>
+                <div class="knob__foot"></div>
+                <div class="knob__lid"></div>
               </div>
               <div class="knob knob--btn">
-                <svg class="knob__svg" viewBox="0 0 100 82" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#e8f2ff" stroke-width="2.6">
-                  <path class="knob__side" d="M12 30 V52" />
-                  <path class="knob__side" d="M88 30 V52" />
-                  <path class="knob__front" d="M12 52 A38 14 0 0 0 88 52" />
-                  <ellipse class="knob__disc" cx="50" cy="30" rx="38" ry="14" />
-                </svg>
+                <div class="knob__cyl"></div>
+                <div class="knob__lid"></div>
               </div>
             </div>
 
@@ -217,6 +195,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
-  <script src="main.js?v=22"></script>
+  <script src="main.js?v=24"></script>
 </body>
 </html>
