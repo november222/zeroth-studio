@@ -14,7 +14,7 @@ window.scrollTo(0, 0);
 ScrollTrigger.config({ ignoreMobileResize: true });
 ScrollTrigger.normalizeScroll(true);
 
-const SCROLL_LEN = 7200; // px cuộn cho toàn chuỗi
+const SCROLL_LEN = 7600; // px cuộn cho toàn chuỗi
 
 /* ---------- refs ---------- */
 const logoDisc      = document.querySelector('.logo__disc');
@@ -240,22 +240,29 @@ tl.to(prismPane('rt'), { x:  CAM.prism.w / 2, ...bl }, BLOOM + 3);
 tl.to('.dial', { scale: 1, autoAlpha: 1, duration: 5, stagger: 0.4, ease: 'back.out(1.7)' }, BLOOM + 8);
 tl.to(cameraBox, { rotationX: -16, rotationY: 30, duration: 18, ease: 'power1.inOut' }, BLOOM);
 
-/* --- 4b. Thông tin xuất hiện CÙNG lúc khối 3D hình thành --- */
-// khung tên bản vẽ (2D, góc dưới)
+/* --- 4b. Khung tên bản vẽ (2D, góc dưới) --- */
 tl.to('.titleblock', { autoAlpha: 1, y: 0, duration: 5, ease: 'power2.out' }, BLOOM);
-// chú thích kỹ thuật: bay từ chiều sâu (z) ra + vạch chỉ "vẽ" tới
-tl.to('.anno', { autoAlpha: 1, z: 0, duration: 5, stagger: 2.2, ease: 'power2.out' }, BLOOM + 3);
-tl.to('.anno__lead', { scaleX: 1, duration: 3, stagger: 2.2, ease: 'power2.out' }, BLOOM + 4);
 
-/* --- 5. Dọn chú thích -> xoay lộ mặt sau -> hạ ống ngắm về giữa ---
-   Ống kính GIỮ NGUYÊN, xoay theo khối như một vật thể 3D thật (nó là con của
-   .camera-box). Mọi mặt đều backface-visibility:visible -> xuyên thấu, không
-   pop, không nhãn để bị soi gương. */
-tl.to('.anno', { autoAlpha: 0, z: 40, duration: 4, ease: 'power2.in' }, 49);
-tl.to('.anno__lead', { scaleX: 0, duration: 2.5 }, 49);
+/* --- 5. Xoay lộ mặt sau + hạ ống ngắm về giữa.
+   Ống kính GIỮ NGUYÊN, xoay theo khối như vật thể 3D thật. */
 tl.to(cameraBox, { rotationY: '+=196', duration: 18, ease: 'power1.inOut' }, 53);
 tl.to(cameraBox, { rotationX: -5,      duration: 18, ease: 'power1.inOut' }, 53);
 tl.to(cameraBox, { y: 160 - EYE_Y,     duration: 13, ease: 'power1.inOut' }, 58);
+
+/* --- 5b. Chú thích hiện LẦN LƯỢT theo bộ phận đang ở CHÍNH DIỆN khi khối xoay:
+   ống kính (lúc "nở", rotY~0-40) -> thân máy (xoay sang nghiêng ~rotY 30-160)
+   -> tinh chỉnh (đang xoay tiếp ~rotY 150-226) -> ống ngắm (mặt sau, rotY~200-226).
+   Mỗi cái bay từ chiều sâu (z) ra + vạch chỉ "vẽ" tới, rồi lùi đi trước cái kế. */
+function annoBeat(sel, inAt, outAt) {
+  tl.to(sel,                 { autoAlpha: 1, z: 0,  duration: 4,   ease: 'power2.out' }, inAt);
+  tl.to(sel + ' .anno__lead',{ scaleX: 1,           duration: 3,   ease: 'power2.out' }, inAt + 0.6);
+  tl.to(sel + ' .anno__lead',{ scaleX: 0,           duration: 1.8 }, outAt);
+  tl.to(sel,                 { autoAlpha: 0, z: 44,  duration: 3.2, ease: 'power2.in'  }, outAt);
+}
+annoBeat('.anno--1', 34, 55);   // 01 · ỐNG KÍNH ở chính diện (lúc "nở")
+annoBeat('.anno--3', 54, 64);   // 03 · THÂN MÁY — khối xoay lộ toàn thân
+annoBeat('.anno--4', 63, 71);   // 04 · HIỆU CHỈNH — đang xoay tiếp
+annoBeat('.anno--2', 70, 82);   // 02 · ỐNG NGẮM ở chính diện (mặt sau)
 
 /* --- 6. Zoom vào ống ngắm.
    KHÔNG ẩn ống kính hay bất kỳ mảng khối nào riêng lẻ nữa — mọi thứ (kể cả
@@ -264,19 +271,19 @@ tl.to(cameraBox, { y: 160 - EYE_Y,     duration: 13, ease: 'power1.inOut' }, 58)
    - làm mờ RẤT chậm 24 vạch chia SVG (nguồn nhiễu nét lúc scale lớn) khi khối
      đã quay gần hết ra sau -> mắt không nhận ra;
    - dọn khung tên (2D) trước khi sang nền màu. */
-tl.to('.lens__teeth line', { autoAlpha: 0, duration: 10, ease: 'power1.inOut' }, 62);
-tl.to('.titleblock', { autoAlpha: 0, duration: 4 }, 66);
-tl.to(cameraBox, { scale: 10, duration: 18, ease: 'power2.in' }, 68);
+tl.to('.lens__teeth line', { autoAlpha: 0, duration: 10, ease: 'power1.inOut' }, 64);
+tl.to('.titleblock', { autoAlpha: 0, duration: 4 }, 68);
+tl.to(cameraBox, { scale: 10, duration: 18, ease: 'power2.in' }, 71);
 
 /* --- 7. CROSS-DISSOLVE SỚM: cả cảnh (thân + lăng kính + ống kính) tan CÙNG
    NHAU khi hình còn sạch nét (scale ~4) -> vừa không "vỡ" vừa không mất chi
    tiết lẻ. Lưới mờ nối tiếp. */
-tl.to(cameraScene, { autoAlpha: 0, duration: 6, ease: 'power1.inOut' }, 77);
-tl.to('.blueprint-bg', { opacity: 0, duration: 9, ease: 'power1.inOut' }, 81);
+tl.to(cameraScene, { autoAlpha: 0, duration: 6, ease: 'power1.inOut' }, 82);
+tl.to('.blueprint-bg', { opacity: 0, duration: 9, ease: 'power1.inOut' }, 85);
 
 /* --- 8. Text kết trên nền màu --- */
-tl.to('.finale', { autoAlpha: 1, y: 0, duration: 8, ease: 'power2.out' }, 88);
-tl.to({}, { duration: 3 }, 100); // đệm cuối
+tl.to('.finale', { autoAlpha: 1, y: 0, duration: 8, ease: 'power2.out' }, 92);
+tl.to({}, { duration: 3 }, 104); // đệm cuối
 
 /* ============================================================
    Điều hướng nhanh — cuộn animate (ScrollToPlugin), không nhảy
