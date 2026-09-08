@@ -142,8 +142,9 @@ gsap.set('.finale', { autoAlpha: 0, y: 24 });
 // chú thích 3D: ẩn, lùi theo trục Z (bay tới), xoay yaw để ngồi "trong không
 // gian" như mặt phẳng chú thích của bản vẽ CAD.
 gsap.set('.anno', { autoAlpha: 0, z: -80 });
-gsap.set('.anno--l', { rotationY: 17, transformOrigin: '100% 50%' });
-gsap.set('.anno--r', { rotationY: -17, transformOrigin: '0% 50%' });
+// nghiêng trong không gian như một tấm kính HUD: xoay quanh cạnh gần bộ phận
+gsap.set('.anno--l', { rotationY: 21, rotationX: -6, transformOrigin: '100% 50%' });
+gsap.set('.anno--r', { rotationY: -21, rotationX: -6, transformOrigin: '0% 50%' });
 gsap.set('.anno__lead', { scaleX: 0, transformOrigin: 'left center' });
 gsap.set('.anno--r .anno__lead', { transformOrigin: 'right center' });
 gsap.set('.titleblock', { autoAlpha: 0, y: 12 });
