@@ -29,17 +29,27 @@ body {
   z-index: 1;
   overflow: hidden;
   background: #0b1030;
+  /* nền màu tĩnh -> ép thành 1 lớp GPU đã raster sẵn, cuộn không vẽ lại
+     (tránh giật/lag trên mobile) */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 .color-page .blob,
 .color-page .shard {
   position: absolute;
   display: block;
 }
-.blob { border-radius: 50%; filter: blur(1px); }
-.blob--cobalt  { width: 78vw; height: 78vw; left: -24vw; top: -16vh;  background: #1b4dff; }
-.blob--magenta { width: 60vw; height: 60vw; right: -22vw; top: 30vh;  background: #ff2d9b; }
-.blob--lime    { width: 46vw; height: 46vw; left: -8vw;  bottom: 2vh;  background: #c6f836; }
-.blob--violet  { width: 54vw; height: 54vw; right: -16vw; bottom: -18vh; background: #7a3cff; }
+/* KHÔNG filter: blur (rất nặng khi cuộn trên mobile) — dùng radial-gradient để
+   viền blob mềm mà không cần bộ lọc */
+.blob { border-radius: 50%; }
+.blob--cobalt  { width: 78vw; height: 78vw; left: -24vw; top: -16vh;
+  background: radial-gradient(circle, #1b4dff 58%, rgba(27,77,255,0) 78%); }
+.blob--magenta { width: 60vw; height: 60vw; right: -22vw; top: 30vh;
+  background: radial-gradient(circle, #ff2d9b 58%, rgba(255,45,155,0) 78%); }
+.blob--lime    { width: 46vw; height: 46vw; left: -8vw;  bottom: 2vh;
+  background: radial-gradient(circle, #c6f836 58%, rgba(198,248,54,0) 78%); }
+.blob--violet  { width: 54vw; height: 54vw; right: -16vw; bottom: -18vh;
+  background: radial-gradient(circle, #7a3cff 58%, rgba(122,60,255,0) 78%); }
 .shard--a {
   left: -10vw; top: 40vh;
   width: 90vw; height: 46vh;
@@ -106,31 +116,36 @@ body {
   margin: -6px 0 0 -6px;
   border-radius: 50%;
   background: #ffffff;
+  /* box-shadow TĨNH, bán kính vừa phải (shadow lớn + động = repaint nặng mobile) */
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.5),
-    0 0 16px 4px rgba(255, 255, 255, 0.7),
-    0 0 46px 12px rgba(175, 205, 255, 0.5);
+    0 0 14px 3px rgba(255, 255, 255, 0.6);
   opacity: 0;
   z-index: 3;
   pointer-events: none;
   will-change: transform;
 }
+/* quầng sáng + nhịp thở = 1 lớp riêng, CHỈ animate transform/opacity (GPU, rẻ) */
+.spark::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(200, 220, 255, 0.5), rgba(175, 205, 255, 0) 68%);
+  transform: scale(0.6);
+  will-change: transform, opacity;
+}
 @media (prefers-reduced-motion: no-preference) {
-  .spark { animation: spark-breathe 3.8s ease-in-out infinite; }
+  .spark::after { animation: spark-breathe 3.8s ease-in-out infinite; }
 }
 @keyframes spark-breathe {
-  0%, 100% {
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.4),
-      0 0 18px 4px rgba(255, 255, 255, 0.62),
-      0 0 52px 12px rgba(175, 205, 255, 0.42);
-  }
-  50% {
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.6),
-      0 0 30px 6px rgba(255, 255, 255, 0.9),
-      0 0 82px 22px rgba(175, 205, 255, 0.62);
-  }
+  0%, 100% { transform: scale(0.62); opacity: 0.7; }
+  50%      { transform: scale(1);    opacity: 1; }
 }
 
 /* ---------- Layer 2 : nav cố định ---------- */
@@ -688,19 +703,19 @@ main { position: relative; z-index: 3; }
 .stop {
   position: relative;
   padding: 22px 16px 22px 4px;
-  /* nền tối mờ dần sang phải: chữ đọc rõ, nền màu vẫn lộ ở mép phải */
+  /* nền tối mờ dần sang phải: chữ đọc rõ, nền màu vẫn lộ ở mép phải.
+     KHÔNG backdrop-filter (đọc + blur backdrop mỗi frame = giật nặng mobile) —
+     bù lại bằng alpha cao hơn. */
   background: linear-gradient(90deg,
-    rgba(8, 10, 18, 0.82), rgba(8, 10, 18, 0.5) 58%, rgba(8, 10, 18, 0.06));
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  opacity: 0.74;
-  transition: opacity 0.5s ease, background 0.5s ease;
+    rgba(8, 10, 18, 0.93), rgba(8, 10, 18, 0.72) 55%, rgba(8, 10, 18, 0.12));
+  opacity: 0.72;
+  transition: opacity 0.45s ease;
 }
 .stop--head { padding-top: 28px; }
 .stop.is-active {
   opacity: 1;
   background: linear-gradient(90deg,
-    rgba(8, 10, 18, 0.9), rgba(8, 10, 18, 0.62) 60%, rgba(8, 10, 18, 0.1));
+    rgba(8, 10, 18, 0.95), rgba(8, 10, 18, 0.82) 58%, rgba(8, 10, 18, 0.16));
 }
 /* mục đang xem: vệt sáng lạnh loang ra từ rail */
 .stop.is-active::before {

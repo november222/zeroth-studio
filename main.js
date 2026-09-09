@@ -344,6 +344,7 @@ tl.to(cameraBox, { scale: 1.7, duration: 13, ease: 'power2.in' }, 82);
 tl.to('.whiteout', { scale: 1.15, duration: 10, ease: 'power2.in' }, 82);
 tl.set(cameraScene, { display: 'none' }, 93);      // đĩa đã phủ kín -> xoá subtree
 tl.to('.blueprint-bg', { opacity: 0, duration: 3 }, 93);
+tl.set('.blueprint-bg', { visibility: 'hidden' }, 96);  // hết cần -> bỏ khỏi compositor
 tl.to('.whiteout', { opacity: 0, duration: 11, ease: 'power1.inOut' }, 95);
 
 /* --- 8. Tiêu đề kết hiện ra khi màn trắng lùi, để lộ nền màu (kèm quầng sáng
@@ -370,41 +371,51 @@ tl.to({}, { duration: 3 }, 110); // đệm cuối
     return stop.offsetTop + n.offsetTop + n.offsetHeight / 2;
   };
 
+  // CACHE: vị trí node trong toạ độ trang + trục .story. Tính lại khi refresh,
+  // KHÔNG gọi getBoundingClientRect mỗi frame cuộn (ép reflow -> giật mobile).
+  let nodeYs = [];      // theo trục .story (để đặt spark)
+  let nodePageTop = []; // theo trang (để so với scrollY)
+  const measure = () => {
+    const storyTop = story.getBoundingClientRect().top + window.scrollY;
+    nodeYs = stops.map(nodeY);
+    nodePageTop = stops.map((s, i) => storyTop + nodeYs[i] - s.querySelector('.stop__node').offsetHeight / 2);
+  };
+  measure();
+
   let current = null;
-  const setActive = (stop) => {
-    if (stop === current) return;
-    current = stop;
-    stops.forEach((s) => s.classList.toggle('is-active', s === stop));
-    gsap.to(spark, { y: nodeY(stop), duration: 0.6, ease: 'power3.out', overwrite: 'auto' });
+  const setActive = (i) => {
+    if (i === current) return;
+    current = i;
+    stops.forEach((s, k) => s.classList.toggle('is-active', k === i));
+    gsap.to(spark, { y: nodeYs[i], duration: 0.6, ease: 'power3.out', overwrite: 'auto' });
   };
 
-  gsap.set(spark, { y: nodeY(stops[0]) });
+  gsap.set(spark, { y: nodeYs[0] });
   stops[0].classList.add('is-active');
-  current = stops[0];
+  current = 0;
 
-  // scroll-spy: mục "đang xem" = node cuối cùng đã đi qua vạch ~giữa màn hình
+  // scroll-spy: mục "đang xem" = node cuối cùng đã qua vạch ~giữa màn hình
   ScrollTrigger.create({
     trigger: story,
     start: 'top 82%',
     end: 'bottom 18%',
     onUpdate: () => {
-      const atEnd = window.scrollY + window.innerHeight >=
-        document.documentElement.scrollHeight - 2;
-      const line = window.innerHeight * 0.5 + 40;
-      let pick = stops[0];
-      for (const s of stops) {
-        if (s.querySelector('.stop__node').getBoundingClientRect().top <= line) pick = s;
-      }
-      if (atEnd) pick = stops[stops.length - 1];   // cuộn tới đáy -> mục cuối
+      const line = window.scrollY + window.innerHeight * 0.5 + 40;
+      let pick = 0;
+      for (let i = 0; i < nodePageTop.length; i++) if (nodePageTop[i] <= line) pick = i;
+      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2)
+        pick = stops.length - 1;                    // cuộn tới đáy -> mục cuối
       setActive(pick);
     },
     onToggle: (self) =>
       gsap.to(spark, { autoAlpha: self.isActive ? 1 : 0, duration: 0.4, overwrite: 'auto' }),
   });
 
-  // layout đổi khi refresh -> đặt lại điểm sáng đúng node đang active
-  ScrollTrigger.addEventListener('refreshInit', () =>
-    gsap.set(spark, { y: nodeY(current || stops[0]) }));
+  // layout đổi khi refresh -> đo lại + đặt spark đúng node đang active
+  ScrollTrigger.addEventListener('refreshInit', () => {
+    measure();
+    gsap.set(spark, { y: nodeYs[current || 0] });
+  });
 })();
 
 /* ============================================================
