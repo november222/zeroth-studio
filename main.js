@@ -178,6 +178,7 @@ gsap.set('.titleblock', { autoAlpha: 0, y: 12 });
 
 // gợi ý cuộn: hiện sẵn, timeline sẽ làm tan đi ngay khi bắt đầu cuộn
 gsap.set('.scroll-cue', { autoAlpha: 1 });
+// thẻ chào: CSS để hiện sẵn (opacity:1); timeline lo phần tan đi khi bắt đầu cuộn.
 
 // điểm sáng: ẩn cho tới khi vùng "câu chuyện" nền màu vào khung nhìn
 gsap.set('.spark', { autoAlpha: 0 });
@@ -220,7 +221,11 @@ const tl = gsap.timeline({
   },
 });
 
-/* --- 0. Gợi ý cuộn tan đi ngay khi người dùng bắt đầu cuộn --- */
+/* --- 0. Thẻ chào + gợi ý cuộn tan đi ngay khi người dùng bắt đầu cuộn.
+   fromTo (start autoAlpha:1) để GSAP không "chộp" nhầm trạng thái ẩn ban đầu. */
+tl.fromTo('.welcome',
+  { autoAlpha: 1, y: 0 },
+  { autoAlpha: 0, y: -10, duration: 1.6, ease: 'power1.in' }, 0);
 tl.to('.scroll-cue', { autoAlpha: 0, duration: 2, ease: 'power1.in' }, 0);
 
 /* --- 1. Đĩa trắng "trôi" khỏi menu xuống vị trí lens ---

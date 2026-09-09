@@ -626,6 +626,67 @@ main { position: relative; z-index: 3; }
   text-shadow: 0 1px 12px rgba(6, 8, 20, 0.75), 0 1px 3px rgba(6, 8, 20, 0.8);
 }
 
+/* ---------- thẻ chào (hiện trước khi cuộn) ---------- */
+.welcome {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 58;                       /* dưới nav (60) */
+  width: min(90vw, 384px);
+  padding: 20px 22px 22px;
+  text-align: left;
+  border: 1px solid rgba(232, 242, 255, 0.5);
+  background:
+    linear-gradient(155deg, rgba(20, 26, 40, 0.82), rgba(12, 16, 26, 0.7));
+  box-shadow:
+    0 0 34px rgba(120, 155, 210, 0.18),
+    inset 0 0 30px rgba(146, 194, 255, 0.05);
+  opacity: 1;
+  pointer-events: none;
+}
+/* ke góc kỹ thuật */
+.welcome::before,
+.welcome::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 0 solid #e8f2ff;
+}
+.welcome::before { top: -1px;    left: -1px;    border-width: 1px 0 0 1px; }
+.welcome::after  { bottom: -1px; right: -1px;   border-width: 0 1px 1px 0; }
+
+.welcome__tag {
+  display: block;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(125, 138, 160, 0.4);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  color: #7d8aa0;
+}
+.welcome__title {
+  margin: 0 0 10px;
+  font-size: clamp(19px, 5.4vw, 24px);
+  line-height: 1.28;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: #e8f2ff;
+}
+.welcome__body {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgba(232, 242, 255, 0.72);
+}
+.welcome__rule {
+  display: block;
+  height: 1px;
+  margin-top: 16px;
+  background: linear-gradient(90deg, rgba(232, 242, 255, 0.55), transparent);
+}
+
 /* ---------- gợi ý cuộn (hiện lúc mới vào trang) ---------- */
 .scroll-cue {
   position: fixed;
