@@ -166,15 +166,16 @@ gsap.set('.lens__teeth line', { autoAlpha: 0 });
 gsap.set('.lens-caption', { autoAlpha: 0, y: 16 });
 gsap.set('.finale', { autoAlpha: 0, y: 24 });
 
-// chú thích 3D: ẩn, lùi theo trục Z (bay tới), xoay yaw để ngồi "trong không
-// gian" như mặt phẳng chú thích của bản vẽ CAD.
-gsap.set('.anno', { autoAlpha: 0, z: -80 });
-// nghiêng trong không gian như một tấm kính HUD: xoay quanh cạnh gần bộ phận
-gsap.set('.anno--l', { rotationY: 21, rotationX: -6, transformOrigin: '100% 50%' });
-gsap.set('.anno--r', { rotationY: -21, rotationX: -6, transformOrigin: '0% 50%' });
-gsap.set('.anno__lead', { scaleX: 0, transformOrigin: 'left center' });
-gsap.set('.anno--r .anno__lead', { transformOrigin: 'right center' });
+// chú thích 3D: cùng một ô neo, ban đầu GẬP LẠI quanh cạnh trái (edge-on, vô
+// hình) + lùi nhẹ theo trục Z. Tới nhịp sẽ "lật" mở ra hướng người xem.
+gsap.set('.anno', {
+  autoAlpha: 0, rotationY: 92, rotationX: 5, z: -46,
+  transformOrigin: '0% 50%',
+});
 gsap.set('.titleblock', { autoAlpha: 0, y: 12 });
+
+// gợi ý cuộn: hiện sẵn, timeline sẽ làm tan đi ngay khi bắt đầu cuộn
+gsap.set('.scroll-cue', { autoAlpha: 1 });
 
 placeDisc();
 
@@ -193,6 +194,9 @@ const tl = gsap.timeline({
     invalidateOnRefresh: true,
   },
 });
+
+/* --- 0. Gợi ý cuộn tan đi ngay khi người dùng bắt đầu cuộn --- */
+tl.to('.scroll-cue', { autoAlpha: 0, duration: 2, ease: 'power1.in' }, 0);
 
 /* --- 1. Đĩa trắng "trôi" khỏi menu xuống vị trí lens ---
    Đích = rect THẬT của .lens__core (ở progress 0 khối chưa biến dạng nên
@@ -282,17 +286,18 @@ tl.to(cameraBox, { rotationX: -6,  duration: 15, ease: 'power1.inOut' }, 53);
 tl.to(cameraBox, { rotationY: 360, duration: 15, ease: 'power1.inOut' }, 70);   // về trước
 tl.to(cameraBox, { rotationX: 0,   duration: 15, ease: 'power1.inOut' }, 70);
 
-/* --- 5b. Chú thích hiện LẦN LƯỢT theo bộ phận đang ở CHÍNH DIỆN khi khối xoay. */
+/* --- 5b. Chú thích hiện LẦN LƯỢT — cùng một ô neo, "lật" mở ra 3D rồi gập lại
+   (không còn ghim vào bộ phận nào của máy). */
 function annoBeat(sel, inAt, outAt) {
-  tl.to(sel,                 { autoAlpha: 1, z: 0,  duration: 4,   ease: 'power2.out' }, inAt);
-  tl.to(sel + ' .anno__lead',{ scaleX: 1,           duration: 3,   ease: 'power2.out' }, inAt + 0.6);
-  tl.to(sel + ' .anno__lead',{ scaleX: 0,           duration: 1.8 }, outAt);
-  tl.to(sel,                 { autoAlpha: 0, z: 44,  duration: 3.2, ease: 'power2.in'  }, outAt);
+  tl.to(sel, { autoAlpha: 1, rotationY: -7, rotationX: 2, z: 0,
+               duration: 5, ease: 'power3.out' }, inAt);
+  tl.to(sel, { autoAlpha: 0, rotationY: -54, rotationX: 7, z: -28,
+               duration: 3.4, ease: 'power2.in' }, outAt);
 }
-annoBeat('.anno--1', 34, 54);   // 01 · ỐNG KÍNH — lúc "nở"
-annoBeat('.anno--3', 53, 63);   // 03 · THÂN MÁY — xoay sang nghiêng
-annoBeat('.anno--4', 62, 69);   // 04 · HIỆU CHỈNH — đang xoay
-annoBeat('.anno--2', 66, 74);   // 02 · ỐNG NGẮM — mặt sau
+annoBeat('.anno--1', 34, 52);
+annoBeat('.anno--3', 52, 62);
+annoBeat('.anno--4', 62, 70);
+annoBeat('.anno--2', 70, 78);
 
 /* --- 6. LAO VÀO ĐIỂM TRẮNG. Dọn wireframe quanh lõi (vạch chia + vòng + tâm
    ngắm) để khoảnh khắc cuối chỉ còn điểm trắng phóng to; khung tên đi trước. */

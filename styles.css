@@ -390,30 +390,36 @@ main { position: relative; z-index: 3; }
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  perspective: 900px;          /* chiều sâu riêng cho các bảng */
+  perspective: 1150px;         /* chiều sâu riêng cho các bảng */
+  perspective-origin: 28% 62%;
   pointer-events: none;
 }
+/* Cả 4 bảng dùng CHUNG một ô neo (góc dưới-trái, chừa khối máy ở giữa) — chúng
+   hiện lần lượt nên không chồng nhau. Không còn ghim vào từng bộ phận:
+   mỗi bảng "lật" mở ra quanh cạnh trái như một trang giấy hướng về người xem. */
 .anno {
   position: absolute;
-  width: min(55vw, 222px);
-  padding: 9px 12px 11px;
+  left: 7%;
+  bottom: 18%;
+  width: min(74vw, 290px);
+  padding: 12px 15px 14px;
   text-align: left;
   border: 1px solid rgba(232, 242, 255, 0.6);
   background:
-    linear-gradient(150deg, rgba(146, 194, 255, 0.13), rgba(146, 194, 255, 0.03));
+    linear-gradient(150deg, rgba(146, 194, 255, 0.15), rgba(146, 194, 255, 0.03));
   box-shadow:
-    0 0 24px rgba(120, 155, 210, 0.16),
+    0 0 28px rgba(120, 155, 210, 0.2),
     inset 0 0 26px rgba(146, 194, 255, 0.06);
   transform-style: preserve-3d;
-  will-change: transform, opacity;
+  transform-origin: 0% 50%;
 }
 /* ke góc kỹ thuật ở 4 góc bảng */
 .anno::before,
 .anno::after {
   content: "";
   position: absolute;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border: 0 solid #e8f2ff;
   pointer-events: none;
 }
@@ -423,7 +429,7 @@ main { position: relative; z-index: 3; }
 .anno__tag {
   display: block;
   padding-bottom: 5px;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   border-bottom: 1px solid rgba(125, 138, 160, 0.45);
   font-size: 9px;
   letter-spacing: 0.12em;
@@ -431,55 +437,22 @@ main { position: relative; z-index: 3; }
 }
 .anno__body {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 1.3;
+  line-height: 1.32;
   letter-spacing: 0.01em;
   color: #e8f2ff;
 }
 
-/* dây dẫn từ cạnh bảng tới bộ phận, có nút tròn ở đầu xa */
-.anno__lead {
-  position: absolute;
-  top: 17px;
-  height: 1px;
-  width: 44px;
-  background: linear-gradient(90deg, rgba(232, 242, 255, 0.9), rgba(232, 242, 255, 0));
-  transform-origin: left center;
-}
-.anno__lead::after {
-  content: "";
-  position: absolute;
-  top: -2px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #e8f2ff;
-}
-.anno--l .anno__lead { left: 100%; }
-.anno--l .anno__lead::after { right: -2px; }
-.anno--r .anno__lead {
-  right: 100%;
-  background: linear-gradient(270deg, rgba(232, 242, 255, 0.9), rgba(232, 242, 255, 0));
-  transform-origin: right center;
-}
-.anno--r .anno__lead::after { left: -2px; }
-
-.anno--1 { left: 6%;  top: 25%; }
-.anno--2 { right: 6%; top: 18%; }
-.anno--3 { left: 6%;  bottom: 21%; }
-.anno--4 { right: 6%; bottom: 25%; }
-.anno--1 .anno__lead { transform: rotate(20deg); }
-.anno--2 .anno__lead { transform: rotate(-20deg); }
-.anno--3 .anno__lead { transform: rotate(-18deg); }
-.anno--4 .anno__lead { transform: rotate(16deg); }
-
 @media (min-width: 768px) {
-  .anno { width: 224px; padding: 11px 14px 13px; }
-  .anno__body { font-size: 13px; }
-  .anno__lead { width: 64px; }
-  .anno--1 { left: 8%; }  .anno--2 { right: 8%; }
-  .anno--3 { left: 8%; }  .anno--4 { right: 8%; }
+  .annos { perspective-origin: 38% 56%; }
+  .anno {
+    left: 8%;
+    bottom: 21%;
+    width: 302px;
+    padding: 15px 18px 16px;
+  }
+  .anno__body { font-size: 14px; }
 }
 
 /* ---------- khung tên bản vẽ ---------- */
@@ -566,6 +539,58 @@ main { position: relative; z-index: 3; }
   line-height: 1.55;
   color: #fff;
   text-shadow: 0 1px 12px rgba(6, 8, 20, 0.75), 0 1px 3px rgba(6, 8, 20, 0.8);
+}
+
+/* ---------- gợi ý cuộn (hiện lúc mới vào trang) ---------- */
+.scroll-cue {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  animation: cue-bob 2.4s ease-in-out infinite;
+}
+.scroll-cue__mouse {
+  width: 22px;
+  height: 34px;
+  padding-top: 6px;
+  display: flex;
+  justify-content: center;
+  border: 1px solid rgba(232, 242, 255, 0.65);
+  border-radius: 11px;
+  box-shadow: 0 0 16px rgba(120, 155, 210, 0.18);
+}
+.scroll-cue__wheel {
+  width: 2px;
+  height: 7px;
+  border-radius: 1px;
+  background: #e8f2ff;
+  animation: cue-wheel 2.4s ease-in-out infinite;
+}
+.scroll-cue__label {
+  font-family: "Share Tech Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  color: #7d8aa0;
+}
+@keyframes cue-wheel {
+  0%   { transform: translateY(0);   opacity: 0; }
+  25%  { opacity: 1; }
+  60%  { transform: translateY(9px); opacity: 0; }
+  100% { transform: translateY(0);   opacity: 0; }
+}
+@keyframes cue-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue { animation: none; transform: translateX(-50%); }
+  .scroll-cue__wheel { animation: none; }
 }
 
 /* ---------- nội dung sau pin ---------- */

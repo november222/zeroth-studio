@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=27" />
+  <link rel="stylesheet" href="styles.css?v=28" />
 </head>
 <body>
 
@@ -43,6 +43,12 @@
 
   <!-- Màn trắng: lao vào điểm trắng -> trắng dần -> tan ra nền màu -->
   <div class="whiteout" aria-hidden="true"></div>
+
+  <!-- Gợi ý cuộn: hiện lúc mới vào trang, tan đi ngay khi bắt đầu cuộn -->
+  <div class="scroll-cue" aria-hidden="true">
+    <span class="scroll-cue__mouse"><span class="scroll-cue__wheel"></span></span>
+    <span class="scroll-cue__label">CUỘN</span>
+  </div>
 
   <!-- ===== Layer 3: nội dung cuộn ===== -->
   <main id="top">
@@ -127,29 +133,26 @@
                 <div class="knob__lid"></div>
               </div>
             </div>
+          </div>
 
-            <!-- Chú thích kỹ thuật xuất hiện cùng lúc khối 3D hình thành -->
-            <div class="annos" aria-hidden="true">
-              <div class="anno anno--1 anno--l">
-                <span class="anno__tag">01 · TIÊU CỰ</span>
-                <span class="anno__body">Điểm nhìn thương hiệu của&nbsp;bạn</span>
-                <span class="anno__lead"></span>
-              </div>
-              <div class="anno anno--2 anno--r">
-                <span class="anno__tag">02 · ỐNG NGẮM</span>
-                <span class="anno__body">Cách khách hàng nhìn thấy&nbsp;bạn</span>
-                <span class="anno__lead"></span>
-              </div>
-              <div class="anno anno--3 anno--l">
-                <span class="anno__tag">03 · THÂN MÁY</span>
-                <span class="anno__body">Nền tảng nhận diện nhất&nbsp;quán</span>
-                <span class="anno__lead"></span>
-              </div>
-              <div class="anno anno--4 anno--r">
-                <span class="anno__tag">04 · HIỆU CHỈNH</span>
-                <span class="anno__body">Tông màu &amp; tiếng nói&nbsp;riêng</span>
-                <span class="anno__lead"></span>
-              </div>
+          <!-- Chú thích kỹ thuật: TÁCH khỏi .camera-scene (không ăn theo scale/
+               perspective của khối) — cùng một ô neo, "lật" mở ra 3D lần lượt. -->
+          <div class="annos" aria-hidden="true">
+            <div class="anno anno--1">
+              <span class="anno__tag">01 · TIÊU CỰ</span>
+              <span class="anno__body">Điểm nhìn thương hiệu của&nbsp;bạn</span>
+            </div>
+            <div class="anno anno--2">
+              <span class="anno__tag">02 · ỐNG NGẮM</span>
+              <span class="anno__body">Cách khách hàng nhìn thấy&nbsp;bạn</span>
+            </div>
+            <div class="anno anno--3">
+              <span class="anno__tag">03 · THÂN MÁY</span>
+              <span class="anno__body">Nền tảng nhận diện nhất&nbsp;quán</span>
+            </div>
+            <div class="anno anno--4">
+              <span class="anno__tag">04 · HIỆU CHỈNH</span>
+              <span class="anno__body">Tông màu &amp; tiếng nói&nbsp;riêng</span>
             </div>
           </div>
 
@@ -198,6 +201,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
-  <script src="main.js?v=27"></script>
+  <script src="main.js?v=28"></script>
 </body>
 </html>
