@@ -73,14 +73,25 @@ body {
 }
 
 /* ---------- màn trắng chuyển cảnh (lao vào điểm trắng) ---------- */
+/* Đĩa trắng "lao vào điểm trắng": KHÔNG phóng to khối wireframe nữa (scale lớn
+   trên preserve-3d làm mobile mất nét khi cuộn ngược). Thay vào đó một ĐĨA đặc
+   nở ra từ tâm màn hình phủ lên khối. Đĩa đặc -> không có texture chi tiết để
+   hỏng. GSAP điều khiển scale (0 -> phủ kín) rồi opacity (1 -> 0) để lộ nền màu. */
 .whiteout {
   position: fixed;
-  inset: 0;
+  left: 50%;
+  top: 50%;
+  width: 150vmax;
+  height: 150vmax;
+  margin: -75vmax 0 0 -75vmax;
+  border-radius: 50%;
   z-index: 80;
   background: #f4f7ff;
-  opacity: 0;
+  opacity: 1;
+  transform: scale(0);
+  transform-origin: 50% 50%;
   pointer-events: none;
-  will-change: opacity;
+  will-change: transform, opacity;
 }
 
 /* ---------- Layer 2 : nav cố định ---------- */

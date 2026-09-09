@@ -154,7 +154,7 @@ KNOBS.forEach((k) => {
 // will-change bật lúc xoay, JS TẮT ngay trước cú zoom scale:10 để mobile không
 // giữ lại texture khổng lồ (nguồn gốc "mất nét khi cuộn ngược" trên Samsung).
 gsap.set(cameraBox, { transformOrigin: '50% 50%', willChange: 'transform' });
-gsap.set('.whiteout', { opacity: 0 });
+gsap.set('.whiteout', { opacity: 1, scale: 0, transformOrigin: '50% 50%' });
 
 // mọi mảnh khối (trừ SVG lens đang là "lens phẳng") ẩn tới lúc "nở"
 gsap.set(camBody.querySelectorAll('.pane'), { autoAlpha: 0 });
@@ -329,15 +329,19 @@ tl.to('.titleblock', { autoAlpha: 0, duration: 4 }, 72);
 tl.to(['.lens__teeth line', '.lens__rings', '.lens__cross', '.lribs i', '.lring'],
       { autoAlpha: 0, duration: 5, ease: 'power1.in' }, 78);
 tl.set('.knob', { visibility: 'hidden' }, 80);
-tl.set(cameraBox, { willChange: 'auto' }, 80);   // thả layer khổng lồ trước zoom
-tl.to(cameraBox, { scale: 10, duration: 15, ease: 'power2.in' }, 82);
+tl.set(cameraBox, { willChange: 'auto' }, 80);
 
-/* --- 7. MÀN HÌNH TRẮNG DẦN (điểm trắng phóng to lấp đầy) rồi tan ra lộ nền màu.
-   Màn trắng vào MUỘN hơn để điểm trắng kịp choán màn hình trước. */
-tl.to('.whiteout', { opacity: 1, duration: 5, ease: 'power1.in' }, 91);
-tl.to(cameraScene,     { autoAlpha: 0, duration: 3 }, 95);   // (đã bị màn trắng che)
-tl.to('.blueprint-bg', { opacity: 0,   duration: 3 }, 95);
-tl.to('.whiteout', { opacity: 0, duration: 10, ease: 'power1.inOut' }, 97);
+/* Push nhẹ khối về phía người xem cho cảm giác "lao vào" — scale NHỎ (1.7) nên
+   preserve-3d không sinh texture khổng lồ. Việc phủ trắng do ĐĨA lo. */
+tl.to(cameraBox, { scale: 1.7, duration: 13, ease: 'power2.in' }, 82);
+
+/* --- 7. ĐĨA TRẮNG nở ra từ tâm (điểm trắng) phủ kín màn hình, rồi tan ra lộ
+   nền màu. Khi đĩa đã phủ kín -> XOÁ HẲN .camera-scene khỏi cây render để mobile
+   dựng lại layer sạch khi cuộn ngược (không tái dùng texture cũ). */
+tl.to('.whiteout', { scale: 1.15, duration: 10, ease: 'power2.in' }, 82);
+tl.set(cameraScene, { display: 'none' }, 93);      // đĩa đã phủ kín -> xoá subtree
+tl.to('.blueprint-bg', { opacity: 0, duration: 3 }, 93);
+tl.to('.whiteout', { opacity: 0, duration: 11, ease: 'power1.inOut' }, 95);
 
 /* --- 8. Tiêu đề kết hiện ra khi màn trắng lùi, để lộ nền màu --- */
 tl.to('.finale', { autoAlpha: 1, y: 0, duration: 8, ease: 'power2.out' }, 100);
