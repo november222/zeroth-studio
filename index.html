@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=32" />
+  <link rel="stylesheet" href="styles.css?v=37" />
 </head>
 <body>
 
@@ -43,10 +43,6 @@
 
   <!-- Màn trắng: lao vào điểm trắng -> trắng dần -> tan ra nền màu -->
   <div class="whiteout" aria-hidden="true"></div>
-
-  <!-- Điểm trắng: hiện ra từ tâm khi đĩa trắng tan, rồi trôi theo cuộn suốt
-       phần nền màu — mạch nối thị giác của "điểm trắng" xuyên suốt trang -->
-  <div class="spark" aria-hidden="true"></div>
 
   <!-- Gợi ý cuộn: hiện lúc mới vào trang, tan đi ngay khi bắt đầu cuộn -->
   <div class="scroll-cue" aria-hidden="true">
@@ -184,27 +180,56 @@
       </div>
     </section>
 
-    <!-- Nội dung sau pin (nền màu) -->
-    <section class="content" id="portfolio">
-      <h2>Portfolio</h2>
-      <div class="cards">
-        <article class="card"><h3>Mai — Photographer</h3><p>Bộ nhận diện tối giản, dấu triện ánh sáng.</p></article>
-        <article class="card"><h3>Huy — TikTok Creator</h3><p>Hệ màu nổi bật, khung hình lặp lại dễ nhớ.</p></article>
-        <article class="card"><h3>Trang — Sales Lead</h3><p>Chữ ký hình ảnh chuyên nghiệp cho hồ sơ &amp; đề xuất.</p></article>
-      </div>
-    </section>
+    <!-- Nội dung sau pin (nền màu): "câu chuyện" chạy dọc một đường rail.
+         Điểm sáng (chấm trắng nối tiếp từ đoạn máy ảnh) trượt xuống rail và NEO
+         vào node của từng mục — hoà vào như đèn báo của mục đang xem. -->
+    <div class="story">
+      <span class="story__rail" aria-hidden="true"></span>
+      <span class="spark" aria-hidden="true"></span>
 
-    <section class="content" id="contact">
-      <h2>Contact</h2>
-      <p>Kể cho chúng tôi về bạn: <a href="mailto:hello@zeroth.studio">hello@zeroth.studio</a></p>
-      <p class="content__foot">Zeroth Studio — bắt đầu từ số không.</p>
-    </section>
+      <section class="stop stop--head" id="portfolio">
+        <span class="stop__node" aria-hidden="true"></span>
+        <p class="stop__tag mono">01 · PORTFOLIO</p>
+        <h2 class="stop__title">Những người bắt đầu từ số không</h2>
+        <p class="stop__body">Ba nhận diện, ba tiếng nói — cùng một điểm sáng dẫn đường.</p>
+      </section>
+
+      <article class="stop" id="work-mai">
+        <span class="stop__node" aria-hidden="true"></span>
+        <p class="stop__tag mono">02 · PHOTOGRAPHER</p>
+        <h3 class="stop__title">Mai</h3>
+        <p class="stop__body">Bộ nhận diện tối giản, dấu triện ánh sáng trên mỗi khung hình.</p>
+      </article>
+
+      <article class="stop" id="work-huy">
+        <span class="stop__node" aria-hidden="true"></span>
+        <p class="stop__tag mono">03 · TIKTOK CREATOR</p>
+        <h3 class="stop__title">Huy</h3>
+        <p class="stop__body">Hệ màu nổi bật, khung hình lặp lại để khán giả nhớ mặt.</p>
+      </article>
+
+      <article class="stop" id="work-trang">
+        <span class="stop__node" aria-hidden="true"></span>
+        <p class="stop__tag mono">04 · SALES LEAD</p>
+        <h3 class="stop__title">Trang</h3>
+        <p class="stop__body">Chữ ký hình ảnh chuyên nghiệp cho hồ sơ &amp; đề xuất.</p>
+      </article>
+
+      <section class="stop stop--head" id="contact">
+        <span class="stop__node" aria-hidden="true"></span>
+        <p class="stop__tag mono">05 · CONTACT</p>
+        <h2 class="stop__title">Kể cho chúng tôi về bạn</h2>
+        <p class="stop__body"><a href="mailto:hello@zeroth.studio">hello@zeroth.studio</a></p>
+      </section>
+
+      <p class="story__foot mono">ZEROTH STUDIO — BẮT ĐẦU TỪ SỐ KHÔNG</p>
+    </div>
 
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
-  <script src="main.js?v=32"></script>
+  <script src="main.js?v=37"></script>
 </body>
 </html>

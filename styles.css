@@ -94,28 +94,26 @@ body {
   will-change: transform, opacity;
 }
 
-/* ---------- điểm trắng xuyên suốt ---------- */
-/* Cùng "điểm trắng" của logo / lõi ống kính: hiện ra từ tâm màn hình đúng lúc
-   đĩa trắng tan, rồi trôi chậm theo cuộn qua phần nền màu (JS: ScrollTrigger
-   parallax). Nằm ở z-index 2 -> ở sau chữ nội dung (z3), quầng sáng loang quanh
-   chữ như một nguồn sáng trong chiều sâu. */
+/* ---------- điểm sáng chạy dọc rail (nối tiếp "điểm trắng" của đoạn máy ảnh) --- */
+/* JS trượt điểm sáng theo trục Y tới node của mục đang xem rồi dừng ("neo").
+   Nằm trong .story, position:absolute -> cuộn cùng nội dung khi đã neo. */
 .spark {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  width: 10px;
-  height: 10px;
-  margin: -5px 0 0 -5px;
+  position: absolute;
+  left: 16px;                 /* trùng trục .story__rail */
+  top: 0;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
   border-radius: 50%;
   background: #ffffff;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.45),
-    0 0 20px 4px rgba(255, 255, 255, 0.72),
-    0 0 58px 14px rgba(175, 205, 255, 0.5);
+    0 0 0 1px rgba(255, 255, 255, 0.5),
+    0 0 16px 4px rgba(255, 255, 255, 0.7),
+    0 0 46px 12px rgba(175, 205, 255, 0.5);
   opacity: 0;
-  z-index: 2;
+  z-index: 3;
   pointer-events: none;
-  will-change: transform, opacity;
+  will-change: transform;
 }
 @media (prefers-reduced-motion: no-preference) {
   .spark { animation: spark-breathe 3.8s ease-in-out infinite; }
@@ -579,6 +577,23 @@ main { position: relative; z-index: 3; }
   text-align: center;
   opacity: 0;
 }
+/* quầng sáng trắng sau tiêu đề = "điểm trắng" vừa lao vào, trước khi nó rời đi
+   thành điểm sáng chạy dọc phần nền màu */
+.finale::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 46%;
+  width: 320px; height: 320px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255, 255, 255, 0.42),
+    rgba(175, 205, 255, 0.12) 42%,
+    transparent 70%);
+  pointer-events: none;
+}
+.finale__title,
+.finale__sub { position: relative; }
 .finale__title {
   margin: 0 0 14px;
   font-size: clamp(28px, 9vw, 44px);
@@ -648,35 +663,106 @@ main { position: relative; z-index: 3; }
   .scroll-cue__wheel { animation: none; }
 }
 
-/* ---------- nội dung sau pin ---------- */
-.content {
+/* ---------- nội dung sau pin: "câu chuyện" chạy dọc theo điểm sáng ---------- */
+.story {
   position: relative;
   z-index: 3;
-  padding: 72px 20px 88px;
-  max-width: 620px;
+  max-width: 560px;
   margin: 0 auto;
+  padding: 96px 22px 230px 46px;   /* chừa lề trái cho rail; đáy rộng để mục cuối
+                                      kịp lên giữa màn hình */
 }
-.content h2 {
-  margin: 0 0 22px;
-  font-size: clamp(24px, 7vw, 34px);
-  letter-spacing: -0.02em;
+.story__rail {
+  position: absolute;
+  left: 16px;
+  top: 84px;
+  bottom: 210px;
+  width: 1px;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(232, 242, 255, 0.28) 6%,
+    rgba(232, 242, 255, 0.28) 94%,
+    transparent);
 }
-.content p { line-height: 1.6; color: rgba(255,255,255,0.9); }
-.content a { color: #d8ff3e; }
-.content__foot { margin-top: 40px; opacity: .7; font-size: 13px; }
-.cards { display: grid; gap: 14px; }
-.card {
-  padding: 18px;
-  border-radius: 14px;
-  background: rgba(8,10,20,0.55);
-  border: 1px solid rgba(150,196,255,0.18);
-  backdrop-filter: blur(4px);
+
+.stop {
+  position: relative;
+  padding: 22px 16px 22px 4px;
+  /* nền tối mờ dần sang phải: chữ đọc rõ, nền màu vẫn lộ ở mép phải */
+  background: linear-gradient(90deg,
+    rgba(8, 10, 18, 0.82), rgba(8, 10, 18, 0.5) 58%, rgba(8, 10, 18, 0.06));
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  opacity: 0.74;
+  transition: opacity 0.5s ease, background 0.5s ease;
 }
-.card h3 { margin: 0 0 6px; font-size: 16px; }
-.card p { margin: 0; font-size: 14px; }
+.stop--head { padding-top: 28px; }
+.stop.is-active {
+  opacity: 1;
+  background: linear-gradient(90deg,
+    rgba(8, 10, 18, 0.9), rgba(8, 10, 18, 0.62) 60%, rgba(8, 10, 18, 0.1));
+}
+/* mục đang xem: vệt sáng lạnh loang ra từ rail */
+.stop.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 55%;
+  background: linear-gradient(90deg, rgba(146, 194, 255, 0.12), transparent 78%);
+  pointer-events: none;
+}
+
+.stop__node {
+  position: absolute;
+  left: -36px;                 /* -36 + 6 = tâm ở x16, trùng rail */
+  top: 30px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(232, 242, 255, 0.3);
+  border-radius: 50%;
+  background: #0b1030;
+  transition: border-color 0.45s ease, box-shadow 0.45s ease;
+}
+.stop--head .stop__node { top: 36px; }
+.stop.is-active .stop__node {
+  border-color: rgba(232, 242, 255, 0.85);
+  box-shadow: 0 0 14px rgba(175, 205, 255, 0.45);
+}
+
+.stop__tag {
+  margin: 0 0 8px;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  color: #7d8aa0;
+}
+.stop__title {
+  margin: 0 0 8px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #e8f2ff;
+}
+.stop--head .stop__title { font-size: clamp(21px, 5vw, 27px); }
+.stop:not(.stop--head) .stop__title { font-size: clamp(18px, 4.4vw, 21px); }
+.stop__body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.62;
+  color: rgba(232, 242, 255, 0.82);
+}
+.stop__body a { color: #d8ff3e; }
+
+.story__foot {
+  margin: 44px 0 0;
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
+  color: #556074;
+}
 
 /* ---------- màn hình lớn hơn ---------- */
 @media (min-width: 768px) {
   .nav { padding: 18px 32px; font-size: 14px; }
   .lens-caption { top: calc(50% + 250px); font-size: 17px; }
+  .story { max-width: 600px; }
 }

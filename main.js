@@ -179,8 +179,8 @@ gsap.set('.titleblock', { autoAlpha: 0, y: 12 });
 // gợi ý cuộn: hiện sẵn, timeline sẽ làm tan đi ngay khi bắt đầu cuộn
 gsap.set('.scroll-cue', { autoAlpha: 1 });
 
-// điểm trắng xuyên suốt: ẩn tới lúc đĩa trắng tan (cuối timeline)
-gsap.set('.spark', { autoAlpha: 0, x: 0, y: 0 });
+// điểm sáng: ẩn cho tới khi vùng "câu chuyện" nền màu vào khung nhìn
+gsap.set('.spark', { autoAlpha: 0 });
 
 placeDisc();
 
@@ -346,33 +346,66 @@ tl.set(cameraScene, { display: 'none' }, 93);      // đĩa đã phủ kín -> x
 tl.to('.blueprint-bg', { opacity: 0, duration: 3 }, 93);
 tl.to('.whiteout', { opacity: 0, duration: 11, ease: 'power1.inOut' }, 95);
 
-/* --- 8. Tiêu đề kết hiện ra khi màn trắng lùi, để lộ nền màu --- */
+/* --- 8. Tiêu đề kết hiện ra khi màn trắng lùi, để lộ nền màu (kèm quầng sáng
+   trắng ::before — "điểm trắng" vừa lao vào, sắp rời đi thành điểm sáng chạy). */
 tl.to('.finale', { autoAlpha: 1, y: 0, duration: 8, ease: 'power2.out' }, 100);
-
-/* --- 8b. ĐIỂM TRẮNG hiện ra từ tâm màn hình đúng lúc đĩa trắng tan — "điểm
-   trắng" của logo / lõi ống kính đi tiếp vào thế giới nền màu, không đứt mạch. */
-tl.to('.spark', { autoAlpha: 1, duration: 6, ease: 'power2.out' }, 96);
 
 tl.to({}, { duration: 3 }, 110); // đệm cuối
 
 /* ============================================================
-   ĐIỂM TRẮNG trôi theo cuộn ở vùng nội dung nền màu (parallax).
-   ScrollTrigger RIÊNG, KHÔNG pin — chỉ dịch điểm trắng để nó "đi cùng" người
-   dùng suốt phần còn lại của trang. z-index 2 nên nằm sau chữ, quầng sáng loang.
+   ĐIỂM SÁNG chạy dọc rail và NEO vào từng mục ở phần nền màu.
+   Mỗi .stop có một .stop__node trên rail; điểm sáng trượt tới node của mục đang
+   xem rồi dừng lại — hoà vào như "đèn báo" của mục đó. ScrollTrigger riêng,
+   KHÔNG pin (ràng buộc "một timeline" là cho đoạn cinematic).
    ============================================================ */
-gsap.to('.spark', {
-  y: () => window.innerHeight * 0.30,
-  x: () => (window.innerWidth < 700 ? window.innerWidth * 0.30 : window.innerWidth * 0.24),
-  ease: 'none',
-  scrollTrigger: {
-    trigger: '#portfolio',
-    start: 'top 92%',
-    endTrigger: '#contact',
-    end: 'bottom 80%',
-    scrub: 1.2,
-    invalidateOnRefresh: true,
-  },
-});
+(() => {
+  const story = document.querySelector('.story');
+  const spark = document.querySelector('.spark');
+  const stops = gsap.utils.toArray('.stop');
+  if (!story || !spark || !stops.length) return;
+
+  // tâm node theo trục Y của .story (offsetParent của cả spark lẫn stop)
+  const nodeY = (stop) => {
+    const n = stop.querySelector('.stop__node');
+    return stop.offsetTop + n.offsetTop + n.offsetHeight / 2;
+  };
+
+  let current = null;
+  const setActive = (stop) => {
+    if (stop === current) return;
+    current = stop;
+    stops.forEach((s) => s.classList.toggle('is-active', s === stop));
+    gsap.to(spark, { y: nodeY(stop), duration: 0.6, ease: 'power3.out', overwrite: 'auto' });
+  };
+
+  gsap.set(spark, { y: nodeY(stops[0]) });
+  stops[0].classList.add('is-active');
+  current = stops[0];
+
+  // scroll-spy: mục "đang xem" = node cuối cùng đã đi qua vạch ~giữa màn hình
+  ScrollTrigger.create({
+    trigger: story,
+    start: 'top 82%',
+    end: 'bottom 18%',
+    onUpdate: () => {
+      const atEnd = window.scrollY + window.innerHeight >=
+        document.documentElement.scrollHeight - 2;
+      const line = window.innerHeight * 0.5 + 40;
+      let pick = stops[0];
+      for (const s of stops) {
+        if (s.querySelector('.stop__node').getBoundingClientRect().top <= line) pick = s;
+      }
+      if (atEnd) pick = stops[stops.length - 1];   // cuộn tới đáy -> mục cuối
+      setActive(pick);
+    },
+    onToggle: (self) =>
+      gsap.to(spark, { autoAlpha: self.isActive ? 1 : 0, duration: 0.4, overwrite: 'auto' }),
+  });
+
+  // layout đổi khi refresh -> đặt lại điểm sáng đúng node đang active
+  ScrollTrigger.addEventListener('refreshInit', () =>
+    gsap.set(spark, { y: nodeY(current || stops[0]) }));
+})();
 
 /* ============================================================
    Điều hướng nhanh — cuộn animate (ScrollToPlugin), không nhảy
