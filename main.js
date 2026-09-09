@@ -174,7 +174,7 @@ gsap.set('.anno', {
   autoAlpha: 0, rotationY: 92, rotationX: 5, z: -46,
   transformOrigin: '0% 50%',
 });
-gsap.set('.titleblock', { autoAlpha: 0, y: 12 });
+gsap.set('.titleblock', { autoAlpha: 0, y: 0 });   // y:0 -> thẳng hàng với thẻ chào lúc dock
 
 // gợi ý cuộn: hiện sẵn, timeline sẽ làm tan đi ngay khi bắt đầu cuộn
 gsap.set('.scroll-cue', { autoAlpha: 1 });
@@ -221,15 +221,41 @@ const tl = gsap.timeline({
   },
 });
 
-/* --- 0. Thẻ chào LẬT NGƯỢC LÊN như xé trang giấy note (bản lề = cạnh dưới,
-   lật lên cạnh trên) ngay khi bắt đầu cuộn — xong trước khi đĩa trắng tới lens.
-   fromTo (start rõ ràng) để GSAP không "chộp" nhầm trạng thái ban đầu. */
-tl.fromTo('.welcome',
-  { autoAlpha: 1, rotationX: 0, y: 0 },
-  { rotationX: -116, y: -8, duration: 3, ease: 'power2.in',
-    transformOrigin: '50% 0%', transformPerspective: 1150 }, 0);
-tl.to('.welcome', { autoAlpha: 0, duration: 1.1, ease: 'power1.in' }, 2);
+/* --- 0. Thẻ chào THU NHỎ + trượt mượt xuống góc phải-dưới, thế đúng chỗ khung
+   tên bản vẽ "ZEROTH STUDIO" (.titleblock), rồi tan đi để lộ khung tên đó.
+   Đích tính từ rect THẬT của .titleblock (hàm -> tính lại khi refresh). */
+const welcomeEl    = document.querySelector('.welcome');
+const titleblockEl = document.querySelector('.titleblock');
+// đích: thu .welcome về đúng bề rộng .titleblock và ghim GÓC PHẢI-DƯỚI 2 thẻ
+// trùng nhau (scale quanh tâm rồi bù translate).
+const dockWelcome = () => {
+  const w = welcomeEl.getBoundingClientRect();
+  const t = titleblockEl.getBoundingClientRect();
+  const s = t.width / w.width;
+  const wcx = w.left + w.width / 2, wcy = w.top + w.height / 2;
+  return {
+    s,
+    x: t.right  - (wcx + s * (w.right  - wcx)),
+    y: t.bottom - (wcy + s * (w.bottom - wcy)),
+  };
+};
+tl.fromTo(welcomeEl,
+  { autoAlpha: 1, scale: 1, x: 0, y: 0 },
+  {
+    scale: () => dockWelcome().s,
+    x: () => dockWelcome().x,
+    y: () => dockWelcome().y,
+    transformOrigin: '50% 50%',
+    immediateRender: true,
+    duration: 5,
+    ease: 'power3.inOut',
+  }, 0);
+tl.to('.welcome', { autoAlpha: 0, duration: 1.8, ease: 'power1.inOut' }, 3.3);
 tl.to('.scroll-cue', { autoAlpha: 0, duration: 2, ease: 'power1.in' }, 0);
+
+/* khung tên bản vẽ hiện lên ngay tại chỗ đó khi thẻ chào thu về -> cảm giác
+   "thẻ chào biến thành khung tên" (thay cho lần hiện muộn lúc "nở" khối) */
+tl.to('.titleblock', { autoAlpha: 1, duration: 3, ease: 'power2.out' }, 3.6);
 
 /* --- 1. Đĩa trắng "trôi" khỏi menu xuống vị trí lens ---
    Đích = rect THẬT của .lens__core (ở progress 0 khối chưa biến dạng nên
@@ -308,8 +334,7 @@ KNOBS.forEach((k, i) => {
 });
 tl.to(cameraBox, { rotationX: -24, rotationY: 33, duration: 18, ease: 'power1.inOut' }, BLOOM);
 
-/* --- 4b. Khung tên bản vẽ (2D, góc dưới) --- */
-tl.to('.titleblock', { autoAlpha: 1, y: 0, duration: 5, ease: 'power2.out' }, BLOOM);
+/* --- 4b. Khung tên bản vẽ: đã hiện từ đầu (bước 0), chỉ giữ nguyên qua đây --- */
 
 /* --- 5. Xoay gần 1 vòng quanh khối (chú thích chạy theo góc) rồi XOAY VỀ
    CHÍNH DIỆN để ĐIỂM TRẮNG (lõi lens ở tâm khối) nằm giữa màn hình.
