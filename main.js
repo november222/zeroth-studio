@@ -150,8 +150,10 @@ KNOBS.forEach((k) => {
   // .knob__cyl: KHÔNG gsap.set (GSAP ghi matrix() 2D -> làm phẳng thành trụ)
 });
 
-// tâm xoay/scale của cả máy ảnh = TÂM KHỐI (= vị trí điểm trắng lõi lens)
-gsap.set(cameraBox, { transformOrigin: '50% 50%' });
+// tâm xoay/scale của cả máy ảnh = TÂM KHỐI (= vị trí điểm trắng lõi lens).
+// will-change bật lúc xoay, JS TẮT ngay trước cú zoom scale:10 để mobile không
+// giữ lại texture khổng lồ (nguồn gốc "mất nét khi cuộn ngược" trên Samsung).
+gsap.set(cameraBox, { transformOrigin: '50% 50%', willChange: 'transform' });
 gsap.set('.whiteout', { opacity: 0 });
 
 // mọi mảnh khối (trừ SVG lens đang là "lens phẳng") ẩn tới lúc "nở"
@@ -182,6 +184,20 @@ placeDisc();
 /* ============================================================
    TIMELINE DUY NHẤT (đơn vị 0..~100, scrub ánh xạ theo cuộn)
    ============================================================ */
+/* Cuộn NGƯỢC (color page -> máy ảnh): ép trình duyệt raster lại khối 3D một lần
+   khi đổi hướng. Trên mobile, layer đã bị phóng to lúc zoom có thể được tái dùng
+   ở dạng texture cũ đã suy giảm -> mất nét. Nhấp will-change buộc bỏ & dựng lại
+   lớp với ảnh mới. Chỉ chạy 1 lần mỗi lần đảo hướng nên không tốn kém. */
+function repaint3D() {
+  [cameraBox, camBody, camPrism, camLens].forEach((el) => {
+    const keep = el.style.willChange;
+    el.style.willChange = 'auto';
+    void el.offsetWidth;                 // buộc reflow -> huỷ layer cũ
+    el.style.willChange = keep || '';
+  });
+}
+let lastScrubDir = 1;
+
 const tl = gsap.timeline({
   defaults: { ease: 'none' },
   scrollTrigger: {
@@ -192,6 +208,12 @@ const tl = gsap.timeline({
     scrub: 1,
     anticipatePin: 1,
     invalidateOnRefresh: true,
+    onUpdate: (self) => {
+      if (self.direction !== lastScrubDir) {
+        lastScrubDir = self.direction;
+        if (self.direction === -1 && self.progress < 0.9) repaint3D();
+      }
+    },
   },
 });
 
@@ -299,11 +321,15 @@ annoBeat('.anno--3', 52, 62);
 annoBeat('.anno--4', 62, 70);
 annoBeat('.anno--2', 70, 78);
 
-/* --- 6. LAO VÀO ĐIỂM TRẮNG. Dọn wireframe quanh lõi (vạch chia + vòng + tâm
-   ngắm) để khoảnh khắc cuối chỉ còn điểm trắng phóng to; khung tên đi trước. */
+/* --- 6. LAO VÀO ĐIỂM TRẮNG. Dọn HẾT nét mảnh quanh lõi (vạch chia + vòng ngắm
+   + tâm ngắm + nan trụ + vành bezel + núm xoay) TRƯỚC khi phóng to — để scale:10
+   chỉ còn tác động lên vài mặt phẳng lớn đơn giản đang văng khỏi khung. Nét 1px
+   không bị kéo giãn -> không có gì để "mất" khi cuộn ngược. Khung tên đi trước. */
 tl.to('.titleblock', { autoAlpha: 0, duration: 4 }, 72);
-tl.to(['.lens__teeth line', '.lens__rings', '.lens__cross'],
+tl.to(['.lens__teeth line', '.lens__rings', '.lens__cross', '.lribs i', '.lring'],
       { autoAlpha: 0, duration: 5, ease: 'power1.in' }, 78);
+tl.set('.knob', { visibility: 'hidden' }, 80);
+tl.set(cameraBox, { willChange: 'auto' }, 80);   // thả layer khổng lồ trước zoom
 tl.to(cameraBox, { scale: 10, duration: 15, ease: 'power2.in' }, 82);
 
 /* --- 7. MÀN HÌNH TRẮNG DẦN (điểm trắng phóng to lấp đầy) rồi tan ra lộ nền màu.

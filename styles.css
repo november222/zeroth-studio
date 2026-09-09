@@ -178,21 +178,24 @@ main { position: relative; z-index: 3; }
   place-items: center;
   perspective: 1200px;
   perspective-origin: 50% 50%;
-  will-change: transform, opacity;
+  will-change: transform;
 }
 .camera-box {
   position: relative;
   width: 320px;
   height: 320px;
   transform-style: preserve-3d;
-  will-change: transform;
+  /* KHÔNG will-change tĩnh: đây là phần tử preserve-3d bị phóng scale:10 ở cuối
+     -> texture GPU khổng lồ bị giữ lại, cuộn ngược trên mobile (Samsung) sẽ
+     dùng lại ảnh cũ đã suy giảm -> mất nét 1px. JS bật/tắt theo nhịp. */
 }
 @media (min-width: 768px) { .camera-scene { scale: 1.28; } }
 
-/* thúc GPU tách lớp cho các cụm chuyển động -> giảm rung/nhòe khi scrub.
-   KHÔNG thêm .knob: will-change tách lớp -> làm phẳng preserve-3d -> trụ 3D sập
-   (mặt đỉnh rotateX(90) bị ép về đường ~2px). Đó là lỗi "núm bị 2D". */
-.wirebox, .cam-lens, .pane, .lring { will-change: transform; }
+/* thúc GPU tách lớp CHỈ cho 2 cụm 3D thực sự có xoay/tịnh tiến -> giảm rung khi
+   scrub. KHÔNG thêm .pane / .lring (nét lá, đứng yên sau khi "nở" -> tách lớp
+   chỉ tổ giữ texture cũ, mất nét khi cuộn ngược ở scale lớn). KHÔNG thêm .knob:
+   will-change làm phẳng preserve-3d -> trụ 3D sập thành đường ~2px. */
+.wirebox, .cam-lens { will-change: transform; }
 
 /* ---- sub-assembly: hộp wireframe 6 mặt ---- */
 .wirebox {
