@@ -179,6 +179,9 @@ gsap.set('.titleblock', { autoAlpha: 0, y: 12 });
 // gợi ý cuộn: hiện sẵn, timeline sẽ làm tan đi ngay khi bắt đầu cuộn
 gsap.set('.scroll-cue', { autoAlpha: 1 });
 
+// điểm trắng xuyên suốt: ẩn tới lúc đĩa trắng tan (cuối timeline)
+gsap.set('.spark', { autoAlpha: 0, x: 0, y: 0 });
+
 placeDisc();
 
 /* ============================================================
@@ -345,7 +348,31 @@ tl.to('.whiteout', { opacity: 0, duration: 11, ease: 'power1.inOut' }, 95);
 
 /* --- 8. Tiêu đề kết hiện ra khi màn trắng lùi, để lộ nền màu --- */
 tl.to('.finale', { autoAlpha: 1, y: 0, duration: 8, ease: 'power2.out' }, 100);
+
+/* --- 8b. ĐIỂM TRẮNG hiện ra từ tâm màn hình đúng lúc đĩa trắng tan — "điểm
+   trắng" của logo / lõi ống kính đi tiếp vào thế giới nền màu, không đứt mạch. */
+tl.to('.spark', { autoAlpha: 1, duration: 6, ease: 'power2.out' }, 96);
+
 tl.to({}, { duration: 3 }, 110); // đệm cuối
+
+/* ============================================================
+   ĐIỂM TRẮNG trôi theo cuộn ở vùng nội dung nền màu (parallax).
+   ScrollTrigger RIÊNG, KHÔNG pin — chỉ dịch điểm trắng để nó "đi cùng" người
+   dùng suốt phần còn lại của trang. z-index 2 nên nằm sau chữ, quầng sáng loang.
+   ============================================================ */
+gsap.to('.spark', {
+  y: () => window.innerHeight * 0.30,
+  x: () => (window.innerWidth < 700 ? window.innerWidth * 0.30 : window.innerWidth * 0.24),
+  ease: 'none',
+  scrollTrigger: {
+    trigger: '#portfolio',
+    start: 'top 92%',
+    endTrigger: '#contact',
+    end: 'bottom 80%',
+    scrub: 1.2,
+    invalidateOnRefresh: true,
+  },
+});
 
 /* ============================================================
    Điều hướng nhanh — cuộn animate (ScrollToPlugin), không nhảy

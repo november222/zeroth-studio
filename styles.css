@@ -94,6 +94,47 @@ body {
   will-change: transform, opacity;
 }
 
+/* ---------- điểm trắng xuyên suốt ---------- */
+/* Cùng "điểm trắng" của logo / lõi ống kính: hiện ra từ tâm màn hình đúng lúc
+   đĩa trắng tan, rồi trôi chậm theo cuộn qua phần nền màu (JS: ScrollTrigger
+   parallax). Nằm ở z-index 2 -> ở sau chữ nội dung (z3), quầng sáng loang quanh
+   chữ như một nguồn sáng trong chiều sâu. */
+.spark {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.45),
+    0 0 20px 4px rgba(255, 255, 255, 0.72),
+    0 0 58px 14px rgba(175, 205, 255, 0.5);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spark { animation: spark-breathe 3.8s ease-in-out infinite; }
+}
+@keyframes spark-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.4),
+      0 0 18px 4px rgba(255, 255, 255, 0.62),
+      0 0 52px 12px rgba(175, 205, 255, 0.42);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.6),
+      0 0 30px 6px rgba(255, 255, 255, 0.9),
+      0 0 82px 22px rgba(175, 205, 255, 0.62);
+  }
+}
+
 /* ---------- Layer 2 : nav cố định ---------- */
 .nav {
   position: fixed;
