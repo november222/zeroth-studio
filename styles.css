@@ -644,6 +644,7 @@ main { position: relative; z-index: 3; }
     inset 0 0 30px rgba(146, 194, 255, 0.05);
   opacity: 1;
   pointer-events: none;
+  will-change: transform, opacity;
 }
 /* ke góc kỹ thuật */
 .welcome::before,

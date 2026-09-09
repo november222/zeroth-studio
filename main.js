@@ -221,11 +221,14 @@ const tl = gsap.timeline({
   },
 });
 
-/* --- 0. Thẻ chào + gợi ý cuộn tan đi ngay khi người dùng bắt đầu cuộn.
-   fromTo (start autoAlpha:1) để GSAP không "chộp" nhầm trạng thái ẩn ban đầu. */
+/* --- 0. Thẻ chào LẬT NGƯỢC LÊN như xé trang giấy note (bản lề = cạnh dưới,
+   lật lên cạnh trên) ngay khi bắt đầu cuộn — xong trước khi đĩa trắng tới lens.
+   fromTo (start rõ ràng) để GSAP không "chộp" nhầm trạng thái ban đầu. */
 tl.fromTo('.welcome',
-  { autoAlpha: 1, y: 0 },
-  { autoAlpha: 0, y: -10, duration: 1.6, ease: 'power1.in' }, 0);
+  { autoAlpha: 1, rotationX: 0, y: 0 },
+  { rotationX: -116, y: -8, duration: 3, ease: 'power2.in',
+    transformOrigin: '50% 0%', transformPerspective: 1150 }, 0);
+tl.to('.welcome', { autoAlpha: 0, duration: 1.1, ease: 'power1.in' }, 2);
 tl.to('.scroll-cue', { autoAlpha: 0, duration: 2, ease: 'power1.in' }, 0);
 
 /* --- 1. Đĩa trắng "trôi" khỏi menu xuống vị trí lens ---
